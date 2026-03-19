@@ -3,50 +3,38 @@ export const computers = [
     id: 'main-pc',
     name: 'Propstgonz@B650',
     ascii: `
-             .',;::::;,'.                 propstgonz@B650-L
-         .';:cccccccccccc:;,.             -----------------
-      .;cccccccccccccccccccccc;.          OS: Fedora Linux 43 (KDE Plasma Desktop Edition) x86_64
-    .:cccccccccccccccccccccccccc:.        Host: B650 EAGLE (Default string-CF)
-  .;ccccccccccccc;.:dddl:.;ccccccc;.      Kernel: Linux 6.17.12-300.fc43.x86_64
- .:ccccccccccccc;OWMKOOXMWd;ccccccc:.     Uptime: 35 mins
-.:ccccccccccccc;KMMc;cc;xMMc;ccccccc:.    Packages: 2896 (rpm), 11 (flatpak)
-,cccccccccccccc;MMM.;cc;;WW:;cccccccc,    Shell: zsh 5.9
-:cccccccccccccc;MMM.;cccccccccccccccc:    Display (PHL 243V7): 1920x1080 @ 75 Hz in 24" [External]
-:ccccccc;oxOOOo;MMM000k.;cccccccccccc:    Display (Odyssey G5): 2560x1440 @ 144 Hz in 27" [External] *
-cccccc;0MMKxdd:;MMMkddc.;cccccccccccc;    Display (2D FHD LG TV): 1920x1080 @ 60 Hz in 23" [External]
-ccccc;XMO';cccc;MMM.;cccccccccccccccc'    DE: KDE Plasma 6.5.4
-ccccc;MMo;ccccc;MMW.;ccccccccccccccc;     WM: KWin (Wayland)
-ccccc;0MNc.ccc.xMMd;ccccccccccccccc;      WM Theme: Layan
-cccccc;dNMWXXXWM0:;cccccccccccccc:,       Theme: Breeze (Dark) [Qt], Breeze-Dark [GTK2], Breeze [GTK3]
-cccccccc;.:odl:.;cccccccccccccc:,.        Icons: Reversal-orange-dark [Qt], breeze-dark [GTK2], Reversal-orange-dark [GTK3/4]
-ccccccccccccccccccccccccccccc:'.          Font: Noto Sans (10pt) [Qt], Noto Sans (10pt) [GTK2/3/4]
-:ccccccccccccccccccccccc:;,..             Cursor: volantes (24px)
- ':cccccccccccccccc::;,.                  Terminal: tilix 1.9.6
-                                          Terminal Font: Monospace (11pt)
-                                          CPU: AMD Ryzen 5 7600X (12) @ 5.46 GHz
-                                          GPU: AMD Radeon RX 7700 XT [Discrete]
-                                          Memory: 7.78 GiB / 30.95 GiB (25%)
-                                          Swap: 0 B / 8.00 GiB (0%)
-                                          Disk (/): 24.17 GiB / 335.37 GiB (7%) - ext4
-                                          Disk (/home): 308.06 GiB / 915.80 GiB (34%) - ext4
-                                          Disk (/media/hdd): 1.36 TiB / 1.82 TiB (75%) - fuseblk
-                                          Disk (/media/intenso): 536.60 GiB / 937.82 GiB (57%) - ext4
-                                          Local IP (enp8s0): 192.168.1.117/24
-                                          Locale: en_GB.UTF-8
+        PS C:\Users\Propst> winfetch
+
+        lllllllllllllll   lllllllllllllll  Propst@B650
+        lllllllllllllll   lllllllllllllll  -----------
+        lllllllllllllll   lllllllllllllll  OS: Windows 11 Pro [64 bits]
+        lllllllllllllll   lllllllllllllll  Host: Gigabyte Technology Co., Ltd. B650 EAGLE
+        lllllllllllllll   lllllllllllllll  Kernel: 10.0.26100.0
+        lllllllllllllll   lllllllllllllll  Motherboard: Gigabyte Technology Co., Ltd. B650 EAGLE
+        lllllllllllllll   lllllllllllllll  Uptime: 27 minutes
+                                           Packages: (none)
+        lllllllllllllll   lllllllllllllll  Shell: PowerShell v7.5.4
+        lllllllllllllll   lllllllllllllll  Resolution: 1920x1080, 1920x1080, 2560x1440*
+        lllllllllllllll   lllllllllllllll  Terminal: Windows Console
+        lllllllllllllll   lllllllllllllll  CPU: AMD Ryzen 5 7600X 6-Core Processor
+        lllllllllllllll   lllllllllllllll  GPU: AMD Radeon RX 7700 XT
+        lllllllllllllll   lllllllllllllll  Memory: 10,94 GiB / 31,61 GiB (34%)
+        lllllllllllllll   lllllllllllllll  Disk (C:): 118 GiB / 930 GiB (12%)
     `,
     specs: {
-      Host: 'B650 EAGLE (Default string-CF)',
-      OS: 'Fedora Linux 43 (KDE Plasma Desktop Edition) x86_64',
-      Kernel: 'Linux 6.17.12-300.fc43.x86_64',
-      Motherboard: 'Gigabyte B650 EAGLE',
-      Uptime: '35 mins',
-      Shell: 'zsh 5.9',
-      Resolution: '2560x1440 @144Hz, 1920x1080 @75Hz, 1920x1080 @60Hz',
-      Terminal: 'tilix 1.9.6',
-      CPU: 'AMD Ryzen 5 7600X',
+      Host: 'Gigabyte Technology Co., Ltd. B650 EAGLE',
+      OS: 'Windows 11 Pro [64 bits]',
+      Kernel: '10.0.26100.0',
+      Motherboard: 'Gigabyte Technology Co., Ltd. B650 EAGLE',
+      Uptime: '27 minutes',
+      Packages: '(none)',
+      Shell: 'PowerShell v7.5.4',
+      Resolution: '1920x1080, 1920x1080, 2560x1440',
+      Terminal: 'Windows Console',
+      CPU: 'AMD Ryzen 5 7600X 6-Core Processor',
       GPU: 'AMD Radeon RX 7700 XT',
-      RAM: '7.78 / 30.95 GiB (25%)',
-      Disk: '24.17 / 335.37 GiB (/) · 308.06 / 915.80 GiB (/home)'
+      RAM: '10.94 / 31.61 GiB (34%)',
+      Disk: '118 / 930 GiB (12%)',
     },
   },
   {
@@ -75,18 +63,18 @@ cccccccc;.:odl:.;cccccccccccccc:,.       GPU: Intel Skylake GT2 [HD Graphics 520
     `,
     specs: {
       Host: 'Latitude E5470',
-      OS: 'Fedora Linux 43',
-      Kernel: '6.17.12',
-      Uptime: '1h 8m',
+      OS: 'Fedora Linux 43 (KDE Plasma Desktop)',
+      Kernel: '6.17.12-300.fc43.x86_64',
+      Uptime: '1 hour, 8 mins',
       Packages: '2544 (rpm), 18 (flatpak)',
       Shell: 'zsh 5.9',
       Resolution: '1366x768',
       DE: 'Plasma 6.5.4 (Wayland)',
       WM: 'kwin_wayland_wr',
       Terminal: 'tilix',
-      CPU: 'Intel i5-6300U (4) @ 3.0GHz',
+      CPU: 'Intel i5-6300U (4) @ 3.000GHz',
       GPU: 'Intel Skylake GT2 [HD Graphics 520]',
-      RAM: '5.4 / 7.6 GiB',
+      RAM: '5449MiB / 7816MiB',
     },
   },
   {
@@ -117,13 +105,13 @@ cccccccc;.:odl:.;cccccccccccccc:,.       GPU: Intel Skylake GT2 [HD Graphics 520
       Host: 'JINGSHA X79SE PLUS',
       OS: 'Fedora Linux 43 (Server Edition) x86_64',
       Kernel: '6.17.10-300.fc43.x86_64',
-      Uptime: '18h 52m',
+      Uptime: '18 hours, 52 mins',
       Packages: '927 (rpm)',
       Shell: 'zsh 5.9',
       Terminal: '/dev/pts/0',
-      CPU: 'Intel Xeon E5-2660 v2 (20) @ 3.0GHz',
+      CPU: 'Intel Xeon E5-2660 v2 (20) @ 3.000GHz',
       GPU: 'NVIDIA GeForce GTX 750',
-      RAM: '26.7 / 31.9 GiB',
+      RAM: '26707MiB / 31993MiB',
     },
   },
 ];
