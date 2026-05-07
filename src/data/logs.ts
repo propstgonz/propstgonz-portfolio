@@ -1,4 +1,14 @@
 export const logs = [
+/* Log template
+  {
+    date: ' ',
+    message: ' ',
+  },
+*/
+  {
+    date: '2025-12-28',
+    message: 'I cannot believe how fast time passes...',
+  },
   {
     date: '2025-11-27',
     message: 'Updated the website so that it automatically rebuilds itself after being deployed with Jenkins (Or so I tought).',

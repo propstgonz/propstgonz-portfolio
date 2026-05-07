@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { faq } from "../data/faq.ts";
+import IP from "../components/IP.astro";
 
 const PAGE_PROPS = {
   title: "FAQ",
@@ -24,5 +25,5 @@ const PAGE_PROPS = {
     ))}
   </main>
 
-  <script src="../assets/scripts/whatismyip.ts"></script>
+  <IP client:load />
 </Layout>

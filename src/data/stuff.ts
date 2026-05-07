@@ -1,14 +1,14 @@
 export const stuff = [
   {
-    label: '📰 Blog',
+    label: 'Blog',
     action: { type: 'link', href: '/blog' },
   },
   {
-    label: '🔗 My hub',
+    label: 'My hub',
     action: { type: 'link', href: '/hub' },
   },
   {
-    label: '❓ Contact',
+    label: 'Contact',
     action: { type: 'link', href: '/#contact' },
   },
 ];

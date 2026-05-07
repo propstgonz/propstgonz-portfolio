@@ -3,35 +3,38 @@ export const computers = [
     id: 'main-pc',
     name: 'Propstgonz@B650',
     ascii: `
- lllllllllllllll   lllllllllllllll  Propstgonz@B650
- lllllllllllllll   lllllllllllllll  ------------
- lllllllllllllll   lllllllllllllll  OS: Windows 11 Pro [64 bits]
- lllllllllllllll   lllllllllllllll  Host: ASUS System Product Name
- lllllllllllllll   lllllllllllllll  Kernel: 10.0.26100.0
- lllllllllllllll   lllllllllllllll  Motherboard: TUF GAMING B650M-PLUS
- lllllllllllllll   lllllllllllllll  Uptime: 2 days 13 hours 12 minutes
-                                    Packages: (none)
- lllllllllllllll   lllllllllllllll  Shell: PowerShell v7.5.1
- lllllllllllllll   lllllllllllllll  Resolution: 2560x1440, 1920x1080
- lllllllllllllll   lllllllllllllll  Terminal: svchost
- lllllllllllllll   lllllllllllllll  CPU: AMD Ryzen 5 7600X
- lllllllllllllll   lllllllllllllll  GPU: AMD Radeon RX 7700 XT
- lllllllllllllll   lllllllllllllll  Memory: 20.49 GiB / 31.66 GiB (64%)
- lllllllllllllll   lllllllllllllll  Disk (C:): 149 GiB / 930 GiB (16%)
+        PS C:\Users\Propst> winfetch
+
+        lllllllllllllll   lllllllllllllll  Propst@B650
+        lllllllllllllll   lllllllllllllll  -----------
+        lllllllllllllll   lllllllllllllll  OS: Windows 11 Pro [64 bits]
+        lllllllllllllll   lllllllllllllll  Host: Gigabyte Technology Co., Ltd. B650 EAGLE
+        lllllllllllllll   lllllllllllllll  Kernel: 10.0.26100.0
+        lllllllllllllll   lllllllllllllll  Motherboard: Gigabyte Technology Co., Ltd. B650 EAGLE
+        lllllllllllllll   lllllllllllllll  Uptime: 27 minutes
+                                           Packages: (none)
+        lllllllllllllll   lllllllllllllll  Shell: PowerShell v7.5.4
+        lllllllllllllll   lllllllllllllll  Resolution: 1920x1080, 1920x1080, 2560x1440*
+        lllllllllllllll   lllllllllllllll  Terminal: Windows Console
+        lllllllllllllll   lllllllllllllll  CPU: AMD Ryzen 5 7600X 6-Core Processor
+        lllllllllllllll   lllllllllllllll  GPU: AMD Radeon RX 7700 XT
+        lllllllllllllll   lllllllllllllll  Memory: 10,94 GiB / 31,61 GiB (34%)
+        lllllllllllllll   lllllllllllllll  Disk (C:): 118 GiB / 930 GiB (12%)
     `,
     specs: {
-      Host: 'ASUS System Product Name',
-      OS: 'Windows 11 Pro (64-bit)',
+      Host: 'Gigabyte Technology Co., Ltd. B650 EAGLE',
+      OS: 'Windows 11 Pro [64 bits]',
       Kernel: '10.0.26100.0',
-      Motherboard: 'TUF GAMING B650M-PLUS',
-      Uptime: '2d 13h 12m',
-      Shell: 'PowerShell v7.5.1',
-      Resolution: '2560x1440, 1920x1080',
-      Terminal: 'svchost',
-      CPU: 'AMD Ryzen 5 7600X',
+      Motherboard: 'Gigabyte Technology Co., Ltd. B650 EAGLE',
+      Uptime: '27 minutes',
+      Packages: '(none)',
+      Shell: 'PowerShell v7.5.4',
+      Resolution: '1920x1080, 1920x1080, 2560x1440',
+      Terminal: 'Windows Console',
+      CPU: 'AMD Ryzen 5 7600X 6-Core Processor',
       GPU: 'AMD Radeon RX 7700 XT',
-      RAM: '20.49 / 31.66 GiB (64%)',
-      Disk: '149 / 930 GiB (16%)',
+      RAM: '10.94 / 31.61 GiB (34%)',
+      Disk: '118 / 930 GiB (12%)',
     },
   },
   {
@@ -60,18 +63,18 @@ cccccccc;.:odl:.;cccccccccccccc:,.       GPU: Intel Skylake GT2 [HD Graphics 520
     `,
     specs: {
       Host: 'Latitude E5470',
-      OS: 'Fedora Linux 43',
-      Kernel: '6.17.12',
-      Uptime: '1h 8m',
+      OS: 'Fedora Linux 43 (KDE Plasma Desktop)',
+      Kernel: '6.17.12-300.fc43.x86_64',
+      Uptime: '1 hour, 8 mins',
       Packages: '2544 (rpm), 18 (flatpak)',
       Shell: 'zsh 5.9',
       Resolution: '1366x768',
       DE: 'Plasma 6.5.4 (Wayland)',
       WM: 'kwin_wayland_wr',
       Terminal: 'tilix',
-      CPU: 'Intel i5-6300U (4) @ 3.0GHz',
+      CPU: 'Intel i5-6300U (4) @ 3.000GHz',
       GPU: 'Intel Skylake GT2 [HD Graphics 520]',
-      RAM: '5.4 / 7.6 GiB',
+      RAM: '5449MiB / 7816MiB',
     },
   },
   {
@@ -102,13 +105,13 @@ cccccccc;.:odl:.;cccccccccccccc:,.       GPU: Intel Skylake GT2 [HD Graphics 520
       Host: 'JINGSHA X79SE PLUS',
       OS: 'Fedora Linux 43 (Server Edition) x86_64',
       Kernel: '6.17.10-300.fc43.x86_64',
-      Uptime: '18h 52m',
+      Uptime: '18 hours, 52 mins',
       Packages: '927 (rpm)',
       Shell: 'zsh 5.9',
       Terminal: '/dev/pts/0',
-      CPU: 'Intel Xeon E5-2660 v2 (20) @ 3.0GHz',
+      CPU: 'Intel Xeon E5-2660 v2 (20) @ 3.000GHz',
       GPU: 'NVIDIA GeForce GTX 750',
-      RAM: '26.7 / 31.9 GiB',
+      RAM: '26707MiB / 31993MiB',
     },
   },
 ];

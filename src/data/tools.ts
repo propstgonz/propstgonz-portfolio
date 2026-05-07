@@ -27,7 +27,9 @@ export const tools = [
   { name: 'DNS records', icon: dnsLogo },
   { name: 'Docker', icon: dockerLogo },
   { name: 'GNU/Linux bash', icon: tuxLogo },
+/*
   { name: 'Windows Server', icon: windowsServer},
   { name: 'Powershell', icon: powershell},
   { name: 'General SQL', icon: sql}
+*/
 ];
