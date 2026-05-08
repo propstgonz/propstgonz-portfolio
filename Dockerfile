@@ -5,7 +5,8 @@ RUN corepack enable
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
-RUN pnpm install --config.enable-pre-post-scripts=true
+RUN pnpm install --config.enable-pre-post-scripts=true --ignore-scripts=false
+RUN pnpm approve-builds
 COPY . .
 RUN pnpm run build
 RUN pnpm prune --prod
