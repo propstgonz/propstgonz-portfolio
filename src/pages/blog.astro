@@ -9,20 +9,29 @@ const { posts, hasError } = await fetchPosts();
 let allPosts: { id: string; url: string; frontmatter: any; }[] = [];
 
 if (!hasError) {
-  for (const post of posts) {
-    // Descargamos el markdown pero solo para leer el frontmatter
-    const mdRes = await fetch(post.url);
-    const mdText = await mdRes.text();
-    const { data: frontmatter } = matter(mdText);
+  allPosts = await Promise.all(
+    posts.map(async (post) => {
+      try {
+        const mdRes = await fetch(post.url);
+        if (!mdRes.ok) throw new Error(`Failed to fetch ${post.url}`);
+        const mdText = await mdRes.text();
+        const { data: frontmatter } = matter(mdText);
+        return {
+          id: post.id,
+          url: post.url,
+          frontmatter,
+        };
+      } catch (err) {
+        console.warn(`Failed to parse post ${post.id}:`, err);
+        return {
+          id: post.id,
+          url: post.url,
+          frontmatter: { title: 'Error loading post', date: new Date() },
+        };
+      }
+    })
+  );
 
-    allPosts.push({
-      id: post.id,
-      url: post.url,
-      frontmatter,
-    });
-  }
-
-  // Ordenar por fecha descendente
   allPosts = allPosts.sort(
     (a, b) =>
       new Date(b.frontmatter.pubDate).getTime() -
@@ -36,7 +45,7 @@ const PAGE_PROPS = {
   image: '/logbook.png',
 };
 
-export const ssr = true;
+export const revalidate = 3600;
 ---
 
 <Layout {...PAGE_PROPS}>
@@ -77,7 +86,7 @@ export const ssr = true;
         </div>
       )
     }
-    
+
     <button
       onclick="window.location.href='/'"
       class="fixed bottom-4 right-4 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors z-50"
