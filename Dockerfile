@@ -5,8 +5,7 @@ RUN corepack enable
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
-RUN pnpm install --ignore-scripts --frozen-lockfile
-RUN pnpm rebuild esbuild sharp
+RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 RUN pnpm prune --prod

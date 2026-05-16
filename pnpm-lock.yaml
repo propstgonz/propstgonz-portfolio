@@ -26,18 +26,9 @@ importers:
       marked:
         specifier: ^16.1.2
         version: 16.4.2
-      market:
-        specifier: ^1.0.0
-        version: 1.0.0
-      node-addon-api:
-        specifier: ^8.5.0
-        version: 8.6.0
       nodemailer:
         specifier: ^7.0.10
         version: 7.0.13
-      sharp:
-        specifier: ^0.34.3
-        version: 0.34.5
       tailwindcss:
         specifier: ^4.1.11
         version: 4.2.2
@@ -1367,9 +1358,6 @@ packages:
     engines: {node: '>= 20'}
     hasBin: true
 
-  market@1.0.0:
-    resolution: {integrity: sha512-dcr37kLxF2Xu+I2kfDCc7h/UalyIzu1kgayHObKoOV4/vSA+dbPj1eqd0sE7wE9dEfI5ejBdrkAcnJISYVNbtQ==}
-
   mdast-util-definitions@6.0.0:
     resolution: {integrity: sha512-scTllyX6pnYNZH/AIp/0ePz6s4cZtARxImwoPJ7kS42n+MnVsI4XbnG6d4ibehRIldYMWM2LD7ImQblVhUejVQ==}
 
@@ -1525,10 +1513,6 @@ packages:
 
   nlcst-to-string@4.0.0:
     resolution: {integrity: sha512-YKLBCcUYKAg0FNlOBT6aI91qFmSiFKiluk655WzPF+DDMA02qIyy8uiRqI8QXtcFpEvll12LpL5MXqEmAZ+dcA==}
-
-  node-addon-api@8.6.0:
-    resolution: {integrity: sha512-gBVjCaqDlRUk0EwoPNKzIr9KkS9041G/q31IBShPs1Xz6UTA+EXdZADbzqAJQrpDRq71CIMnOP5VMut3SL0z5Q==}
-    engines: {node: ^18 || ^20 || >= 21}
 
   node-fetch-native@1.6.7:
     resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
@@ -2326,7 +2310,8 @@ snapshots:
   '@esbuild/win32-x64@0.27.4':
     optional: true
 
-  '@img/colour@1.1.0': {}
+  '@img/colour@1.1.0':
+    optional: true
 
   '@img/sharp-darwin-arm64@0.34.5':
     optionalDependencies:
@@ -3284,8 +3269,6 @@ snapshots:
 
   marked@16.4.2: {}
 
-  market@1.0.0: {}
-
   mdast-util-definitions@6.0.0:
     dependencies:
       '@types/mdast': 4.0.4
@@ -3619,8 +3602,6 @@ snapshots:
     dependencies:
       '@types/nlcst': 2.0.3
 
-  node-addon-api@8.6.0: {}
-
   node-fetch-native@1.6.7: {}
 
   node-html-parser@6.1.13:
@@ -3915,6 +3896,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.34.5
       '@img/sharp-win32-ia32': 0.34.5
       '@img/sharp-win32-x64': 0.34.5
+    optional: true
 
   shiki@4.0.2:
     dependencies:
