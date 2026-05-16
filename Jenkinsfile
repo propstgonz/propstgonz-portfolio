@@ -8,11 +8,9 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        deleteDir()
         sh 'git config --global --add safe.directory "$WORKSPACE"'
         echo 'Checking out code...'
         checkout scm
-        sh 'cp /var/jenkins_home/envs/propstgonz-portfolio/.env .env'
       }
     }
 
