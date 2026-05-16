@@ -5,7 +5,7 @@ RUN corepack enable
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
-RUN pnpm install --config.enable-pre-post-scripts=true
+RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 RUN pnpm prune --prod
