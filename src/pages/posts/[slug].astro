@@ -1,80 +1,53 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { fetchPosts } from '../api/api';
-import matter from 'gray-matter';
+import BlogPostLayout from '../../layouts/BlogPostLayout.astro';
+import BlogPost from '../../components/BlogPost.astro';
 import { marked } from 'marked';
+import { getPosts, getPostContent } from '../../lib/api';
 
 const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/blog');
 
-const { posts, hasError } = await fetchPosts();
-if (hasError) {
-  throw new Error('Error fetching posts data');
+let html  = '';
+let title = slug.replace(/-/g, ' ');
+
+try {
+  // Get all posts to find the matching URL
+  const posts = await getPosts();
+  const match = posts.find(p => {
+    const name = p.url.split('/').pop()?.replace(/\.md$/, '');
+    return name === slug;
+  });
+
+  if (!match) return Astro.redirect('/blog');
+
+  // Fetch the post content
+  const markdown = await getPostContent(match.url);
+
+  // Extract title from first H1
+  const h1 = markdown.match(/^#\s+(.+)/m);
+  if (h1) title = h1[1];
+
+  // Strip the H1 so BlogPost.astro renders it as its own heading
+  const body = h1 ? markdown.replace(/^#\s+.+\n?/m, '') : markdown;
+  html = await marked(body);
+
+} catch {
+  return Astro.redirect('/blog');
 }
-
-const postMeta = posts.find((p: { id: string | undefined }) => p.id === slug);
-if (!postMeta) {
-  throw new Error('Post not found');
-}
-
-const mdRes = await fetch(postMeta.url);
-if (!mdRes.ok) {
-  throw new Error('Error fetching markdown content');
-}
-const mdText = await mdRes.text();
-
-const { data: frontmatter, content } = matter(mdText);
-
-const normalizedContent = content.replace(/(?<!\n)\n(?!\n)/g, ' ');
-
-const htmlContent = marked(normalizedContent, { breaks: true });
-
-const PAGE_PROPS = {
-  title: frontmatter.title || 'Post',
-  description: frontmatter.description || '',
-  image: frontmatter.image?.url || '',
-  imageAlt: frontmatter.image?.alt || '',
-};
-
-export const prerender = true;
-export const revalidate = 3600;
 ---
 
-<Layout {...PAGE_PROPS}>
-<article class="mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-2xl">
+<BlogPostLayout title={title}>
+  <a href="/blog" class="back">← Back to blog</a>
+  <BlogPost html={html} title={title} />
+</BlogPostLayout>
 
-    <h1 class="text-4xl md:text-5xl font-extrabold text-center mb-6 leading-tight">
-      {frontmatter.title}
-    </h1>
-
-    <div class="text-center text-gray-500 dark:text-gray-400 text-sm mb-8 space-x-2">
-      {frontmatter.pubDate && (
-        <time datetime={frontmatter.pubDate}>
-          {new Date(frontmatter.pubDate).toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </time>
-      )}
-      {frontmatter.author && <span>• {frontmatter.author}</span>}
-    </div>
-
-    {frontmatter.image?.url && (
-      <div class="flex justify-center my-8">
-        <img
-          src={frontmatter.image.url}
-          alt={frontmatter.image.alt || frontmatter.title}
-          class="rounded-xl shadow-lg w-full max-w-4xl object-cover"
-        />
-      </div>
-    )}
-
-    <div
-      set:html={htmlContent}
-      class="prose prose-lg dark:prose-invert mx-auto max-w-none mt-10
-             prose-headings:font-bold prose-headings:scroll-mt-20
-             prose-img:rounded-lg prose-img:shadow-md
-             prose-a:text-blue-600 dark:prose-a:text-blue-400"
-    ></div>
-  </article>
-</Layout>
+<style>
+  .back {
+    display:         inline-block;
+    font-size:       12px;
+    color:           var(--text2);
+    text-decoration: none;
+    margin-bottom:   24px;
+  }
+  .back:hover { color: var(--amber); }
+</style>

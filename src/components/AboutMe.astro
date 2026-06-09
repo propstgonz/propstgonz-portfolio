@@ -4,9 +4,7 @@ import { aboutme } from '../data/aboutme';
 
 <section class="max-w-4xl mx-auto p-6 mt-10 bg-[#1a1c26] rounded-2xl shadow-lg">
   <h2 class="text-lg font-semibold text-[#D99058] mb-3">About me</h2>
-  {aboutme.map((paragraph, i) => (
-    <p class={`text-gray-300 ${i !== aboutme.length - 1 ? 'mb-4' : ''}`}>
-      {paragraph.text}
-    </p>
-  ))}
+  <p class="text-gray-300">
+    {aboutme.bio}
+  </p>
 </section>

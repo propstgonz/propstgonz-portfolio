@@ -1,3 +1,6 @@
 export interface AboutMe {
-  text: string;
+  name:        string;
+  role:        string;
+  bio:         string;
+  deployDate:  string;
 }

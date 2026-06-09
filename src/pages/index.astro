@@ -1,34 +1,99 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
-import Tools from '../components/Tools.astro';
-import Logs from '../components/Logs.astro';
-import Philosophy from '../components/Philosophy.astro';
-import Stuff from '../components/Stuff.astro';
-import SocialsComp from '../components/Socials.astro';
-import ContactForm from '../components/ContForm.astro';
+import Footer from '../components/Footer.astro';
 import AboutMe from '../components/AboutMe.astro';
-
-const PAGE_PROPS = {
-  title: 'Home page',
-  description: 'personal site of Alejandro Propst. Geeky, chaotic, honest.',
-  image: '/metaimage.png',
-};
+import Logs from '../components/Logs.astro';
+import Tools from '../components/Tools.astro';
+import Stuff from '../components/Stuff.astro';
+import Socials from '../components/Socials.astro';
+import ContForm from '../components/ContForm.astro';
+import Philosophy from '../components/Philosophy.astro';
+import ClickCounter from '../components/ClickCounter.astro';
+import IP from '../components/IP.astro';
 ---
 
-<Layout {...PAGE_PROPS}>
-  
-  {/* Upper component */}
-  <Header />
+<Layout>
+  <Header activePage="/" />
 
-  {/* The rest of the content on the page */}
-  <main class="max-w-2xl mx-auto space-y-10">
-    <AboutMe />
-    <Stuff />
-    <Philosophy />
-    <Logs />
-    <Tools />
-    <ContactForm />
-    <SocialsComp />
-  </main>
+  <div class="page-layout">
+
+    <aside class="sidebar">
+      <AboutMe />
+      <Socials />
+      <ClickCounter />
+      <IP />
+    </aside>
+
+    <main class="main-content">
+
+      <div class="hero-card card">
+        <p class="hero-prompt">propstgonz@baronette:~$&nbsp;<span id="tw-text" class="tw-text"></span><span class="tw-cursor" aria-hidden="true">|</span></p>
+      </div>
+
+      <Logs />
+
+      <div class="two-col">
+        <Tools />
+        <Stuff />
+      </div>
+
+      <Philosophy />
+
+      <ContForm />
+
+    </main>
+  </div>
+
+  <Footer />
 </Layout>
+
+<script>
+  import { initTypewriter } from '../assets/scripts/typewriter';
+  import { typewriterMessages } from '../data/aboutme';
+  initTypewriter('tw-text', typewriterMessages);
+</script>
+
+<style>
+  .page-layout {
+    display:   grid;
+    max-width: 880px;
+    margin:    0 auto;
+    padding:   0 20px;
+  }
+
+  @media (min-width: 620px) {
+    .page-layout { grid-template-columns: 210px 1fr; }
+  }
+
+  .sidebar {
+    padding:        22px 20px 22px 0;
+    display:        flex;
+    flex-direction: column;
+    gap:            22px;
+    border-right:   1px solid var(--b1);
+  }
+
+  @media (max-width: 619px) {
+    .sidebar { padding: 20px 0; border-right: none; border-bottom: 1px solid var(--b1); }
+  }
+
+  .main-content {
+    padding:        22px 0 22px 24px;
+    display:        flex;
+    flex-direction: column;
+    gap:            22px;
+  }
+
+  @media (max-width: 619px) { .main-content { padding: 20px 0; } }
+
+  .hero-card    { padding: 14px 16px; border-left: 3px solid var(--amber); }
+  .hero-prompt  { font-family: var(--mono); font-size: 13px; color: var(--text2); min-height: 22px; }
+  .tw-text      { color: var(--cyan); }
+  .tw-cursor    { color: var(--cyan); animation: blink 1s step-end infinite; }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  .two-col { display: grid; gap: 18px; }
+  @media (min-width: 460px) { .two-col { grid-template-columns: 1fr 1fr; } }
+</style>

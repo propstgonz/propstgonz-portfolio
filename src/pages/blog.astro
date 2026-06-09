@@ -1,97 +1,85 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import BlogPost from '../components/BlogPost.astro';
-import { fetchPosts } from './api/api.ts';
-import matter from 'gray-matter';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getPosts } from '../lib/api';
 
-const { posts, hasError } = await fetchPosts();
+let posts: { id: string; url: string }[] = [];
+let error = false;
 
-let allPosts: { id: string; url: string; frontmatter: any; }[] = [];
-
-if (!hasError) {
-  allPosts = await Promise.all(
-    posts.map(async (post) => {
-      try {
-        const mdRes = await fetch(post.url);
-        if (!mdRes.ok) throw new Error(`Failed to fetch ${post.url}`);
-        const mdText = await mdRes.text();
-        const { data: frontmatter } = matter(mdText);
-        return {
-          id: post.id,
-          url: post.url,
-          frontmatter,
-        };
-      } catch (err) {
-        console.warn(`Failed to parse post ${post.id}:`, err);
-        return {
-          id: post.id,
-          url: post.url,
-          frontmatter: { title: 'Error loading post', date: new Date() },
-        };
-      }
-    })
-  );
-
-  allPosts = allPosts.sort(
-    (a, b) =>
-      new Date(b.frontmatter.pubDate).getTime() -
-      new Date(a.frontmatter.pubDate).getTime()
-  );
+try {
+  posts = await getPosts();
+} catch {
+  error = true;
 }
 
-const PAGE_PROPS = {
-  title: 'Blog',
-  description: "Alejandro Propst's logbook",
-  image: '/logbook.png',
-};
-
-export const revalidate = 3600;
+// Extract a readable slug from the URL (last path segment without extension)
+function slugFrom(url: string): string {
+  const seg = url.split('/').pop() ?? url;
+  return seg.replace(/\.md$/, '').replace(/-/g, ' ');
+}
 ---
 
-<Layout {...PAGE_PROPS}>
-  <section class="max-w-3xl mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold mb-8 text-center">
-      Welcome to my blog entries
-      <span class="block text-lg text-gray-500">
-        (In Spanish cuz I'm so lazy to write them in English)
-      </span>
-    </h1>
+<Layout title="Blog — propstgonz">
+  <Header activePage="/blog" />
 
-    {hasError ? (
-      <p class="text-red-500 text-center">Error al cargar los posts.</p>
-    ) : (
-      <div class="flex flex-col gap-6">
-        {allPosts.map((post) => {
-          const dateObj = new Date(post.frontmatter.date);
-          const hasValidDate =
-            post.frontmatter.date && !isNaN(dateObj.getTime());
+  <main class="page">
+    <div class="sec-hd" style="margin-bottom: 20px;">
+      <span class="sec-hd-bar"></span>
+      <span class="sec-hd-title">Blog</span>
+      <span class="sec-hd-rule"></span>
+    </div>
 
-            return (
-              <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 hover:shadow-lg hover:bg-gray-700 transition-all">
-                <a href={`/posts/${post.id}`}>
-                  <li>{post.frontmatter.title}</li>
-                  {hasValidDate && (
-                    <p class="text-sm text-gray-500 mt-1">
-                      {dateObj.toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
-                  )}
-                </a>
-              </div>
-            );
-          })}
-        </div>
-      )
-    }
+    {error && (
+      <p class="err">Could not load posts right now. Try again later.</p>
+    )}
 
-    <button
-      onclick="window.location.href='/'"
-      class="fixed bottom-4 right-4 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors z-50"
-    >
-      ← Return to index
-    </button>
-  </section>
+    {!error && posts.length === 0 && (
+      <p class="empty">Nothing here yet. Check back later.</p>
+    )}
+
+    <ul class="post-list">
+      {posts.map(post => {
+        const slug = post.url.split('/').pop()?.replace(/\.md$/, '') ?? post.id;
+        return (
+          <li>
+            <a href={`/posts/${slug}`} class="post-card card">
+              <span class="post-title">{slugFrom(post.url)}</span>
+              <span class="post-arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </main>
+
+  <Footer />
 </Layout>
+
+<style>
+  .page { max-width: 860px; margin: 0 auto; padding: 28px 20px; }
+
+  .post-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+  .post-card {
+    display:         flex;
+    justify-content: space-between;
+    align-items:     center;
+    padding:         14px 16px;
+    text-decoration: none;
+    color:           var(--text);
+    transition:      border-color .15s, color .15s;
+  }
+
+  .post-card:hover { border-color: var(--amber-d); color: var(--amber); }
+
+  .post-title {
+    font-size:   14px;
+    text-transform: capitalize;
+  }
+
+  .post-arrow { color: var(--text3); font-size: 16px; }
+  .post-card:hover .post-arrow { color: var(--amber); }
+
+  .err, .empty { font-size: 13px; color: var(--text2); }
+</style>

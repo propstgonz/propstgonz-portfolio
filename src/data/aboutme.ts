@@ -1,18 +1,20 @@
-import type { AboutMe } from "../types/aboutme";
+import type { AboutMe } from '../types/aboutme';
 
-export const aboutme: AboutMe[] = [
-  {
-    text: `Hi! I'm Propst, a IT student from Galicia, Spain, and I love tinkering with things just for the fun of it.
-    I enjoy exploring new ideas, spending time with my machines, and finding little adventures in everyday life.
-    I’m curious about the world and always looking for things that make me smile or spark my imagination.`,
-  },
-  {
-    text: `I'm a bit geeky: I love playing video games, diving into books, and watching videos —
-    hobbies that feed my curiosity and creativity.`,
-  },
-  {
-    text: `My professional goal is to craft digital experiences that are not only functional but also enjoyable to use.
-    I believe in continuous learning, creative problem-solving, and collaboration to build accessible, performant,
-    and user-centered products that solve real problems and make people's lives easier.`,
-  },
+export const aboutme: AboutMe = {
+  name:       'propstgonz',
+  role:       'IT student · Galicia',
+  bio:        "I break things. I build things. Sometimes they work. Geeky, curious, and always building something probably broken.",
+  deployDate: '2025-08-03T00:00:00Z',
+};
+
+export const typewriterMessages: string[] = [
+  "I break things. I build things. Sometimes they work.",
+  "This site is more personal than professional — like my dotfiles.",
+  "I use Arch, btw. (lying)",
+  "Warning: prolonged exposure may cause existential dread.",
+  "Error 404: motivation not found.",
+  "Not all who wander are lost, but you definitely are.",
+  "If you're reading this, you should probably be working.",
+  "git commit -m 'fix: still broken but differently'",
+  "Have you tried turning it off and back on again?",
 ];

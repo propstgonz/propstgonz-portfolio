@@ -1,19 +1,30 @@
 services:
   web:
+    build:
+      context:    .
+      dockerfile: Dockerfile
     container_name: propstgonz-web
-    build: .
-    restart: unless-stopped
-    env_file:
-      - .env
-    networks:
-      - traefik-net
+    restart:     unless-stopped
+    env_file:    .env
+    environment:
+      # Internal Docker hostname of the backend container.
+      # Both repos share the 'internal' network so this resolves fine.
+      API_URL: http://propstgonz-api:3000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.propstgonz.rule=Host(`propstgonz.baronette.es`)"
-      - "traefik.http.routers.propstgonz.entrypoints=websecure"
-      - "traefik.http.routers.propstgonz.tls=true"
-      - "traefik.http.services.propstgonz.loadbalancer.server.port=4321"
+      - "traefik.http.routers.web.rule=Host(`propstgonz.baronette.es`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.web.loadbalancer.server.port=4321"
+      # Disable proxy buffering — required for SSE to arrive in real time
+      - "traefik.http.middlewares.no-buffer.headers.customResponseHeaders.X-Accel-Buffering=no"
+      - "traefik.http.routers.web.middlewares=no-buffer"
+    networks:
+      - proxy
+      - internal
 
 networks:
-  traefik-net:
-    external: true
+  proxy:
+    external: true   # shared Traefik network — must exist on the host
+  internal:
+    external: true   # shared with the backend repo — must exist on the host

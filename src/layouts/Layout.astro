@@ -1,41 +1,40 @@
 ---
-import { slide } from "astro:transitions";
-import Footer from "../components/Footer.astro";
-import "../styles/global.css";
-import ClientRouter from "astro/components/ClientRouter.astro";
+import '../styles/global.css';
 
-const { title, description, image } = Astro.props;
+interface Props {
+  title?:       string;
+  description?: string;
+}
+
+const {
+  title       = 'propstgonz',
+  description = 'IT student from Galicia tinkering with things since forever.',
+} = Astro.props;
 ---
-
 <!doctype html>
-<html lang="en" class="bg-[#0f1117] text-gray-200 font-mono">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>~ propstgonz | {title}</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta
-      name="description"
-      content=`propstgonz - ${description}`
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#080B10" />
+    <meta property="og:image" content="/metaimage.png" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!--
+      Preload the avatar so it's fetched before the browser hits the <img> tag.
+      The image lives in public/ and is served with long-lived cache headers via Traefik.
+      fetchpriority="high" bumps it to the top of the network queue.
+    -->
+    <link
+      rel="preload"
+      as="image"
+      href="/propstplaceholder.png"
+      fetchpriority="high"
     />
-    <meta property="og:image" content={image} />
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      is:inline
-      src="https://www.googletagmanager.com/gtag/js?id=G-4WG6H9DMB9"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        window.dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-4WG6H9DMB9");
-    </script>
-    <ClientRouter />
   </head>
-  <body transition:animate={slide({ duration: "1s" })}>
+  <body>
     <slot />
-    <Footer />
   </body>
 </html>

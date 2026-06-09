@@ -1,27 +1,31 @@
-# ETAPA 1: BUILD
-FROM node:lts-bullseye AS builder
+# ── Build stage ──────────────────────────────────────────────────────────────
+FROM node:lts-alpine AS builder
+WORKDIR /app
 
 RUN corepack enable
 
-WORKDIR /app
-COPY package.json pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
-COPY . .
-RUN pnpm run build
-RUN pnpm prune --prod
 
-# ETAPA 2: PRODUCCIÓN
-FROM node:lts-bullseye AS runner
+COPY . .
+
+# Disable Astro telemetry in CI
+ENV ASTRO_TELEMETRY_DISABLED=1
+
+RUN pnpm build
+
+# ── Runtime stage ─────────────────────────────────────────────────────────────
+FROM node:lts-alpine
+WORKDIR /app
 
 RUN corepack enable
 
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+# Only production deps
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod
+
 COPY --from=builder /app/dist ./dist
 
-ENV HOST=0.0.0.0
-ENV PORT=4321
-
 EXPOSE 4321
-CMD ["node", "./dist/server/entry.mjs"]
+ENV HOST=0.0.0.0 PORT=4321 NODE_ENV=production
+CMD ["node", "dist/server/entry.mjs"]

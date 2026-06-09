@@ -1,0 +1,133 @@
+---
+// Initial count fetched server-side so there's no flash of "0"
+import { getCounter } from '../lib/api';
+
+let initialCount = 0;
+try {
+  initialCount = await getCounter();
+} catch { /* falls back to 0 */ }
+---
+
+<div
+  id="click-counter"
+  class="bg-s2 border border-b1 rounded-3xl py-5.25 px-6 text-center cursor-pointer select-none relative overflow-hidden transition-all hover:border-amber-d hover:bg-amber-glow active:scale-97"
+  role="button"
+  tabindex="0"
+  aria-label="Click to add to the global counter"
+>
+  <p class="text-sm uppercase tracking-wider text-text2 mb-2.25">Total clicks</p>
+  <p id="counter-num" class="text-6xl font-bold text-amber font-mono leading-none -tracking-0.5 transition-transform">{initialCount.toLocaleString('es-ES')}</p>
+  <p class="text-sm text-text3 mt-1.75">Click to add to the chaos</p>
+  <span class="inline-flex items-center gap-1.75 text-sm text-green mt-2.25">
+    <span class="live-dot w-2.25 h-2.25 rounded-full bg-green animation-pulse" aria-hidden="true"></span>
+    live
+  </span>
+</div>
+
+<script>
+  const card   = document.getElementById('click-counter')!;
+  const numEl  = document.getElementById('counter-num')!;
+
+  function fmt(n: number) { return n.toLocaleString('es-ES'); }
+
+  function setCount(n: number, animate = false) {
+    numEl.textContent = fmt(n);
+    if (animate) {
+      numEl.classList.remove('bump');
+      void numEl.offsetWidth; // reflow to restart animation
+      numEl.classList.add('bump');
+    }
+  }
+
+  function spawnFloat(x: number, y: number) {
+    const f = document.createElement('span');
+    f.textContent = '+1';
+    f.className   = 'float-num';
+    f.style.left  = `${x}px`;
+    f.style.top   = `${y}px`;
+    card.appendChild(f);
+    f.addEventListener('animationend', () => f.remove());
+  }
+
+  // ── SSE connection ────────────────────────────────────────────────────────
+  function connectSSE() {
+    const src = new EventSource('/api/counter-stream');
+
+    src.onmessage = (e) => {
+      try {
+        const { count } = JSON.parse(e.data) as { count: number };
+        setCount(count, true);
+      } catch { /* malformed event */ }
+    };
+
+    src.onerror = () => {
+      src.close();
+      // Fallback: poll every 5 s when SSE fails
+      setInterval(async () => {
+        try {
+          const r = await fetch('/api/counter');
+          const { count } = await r.json() as { count: number };
+          setCount(count);
+        } catch { /* silent */ }
+      }, 5_000);
+    };
+  }
+
+  connectSSE();
+
+  // ── Click handler ─────────────────────────────────────────────────────────
+  async function handleClick(e: MouseEvent | KeyboardEvent) {
+    if (e instanceof KeyboardEvent && e.key !== 'Enter' && e.key !== ' ') return;
+
+    // Optimistic update
+    const current = parseInt(numEl.textContent?.replace(/\./g, '').replace(/,/g, '') ?? '0');
+    setCount(current + 1, true);
+
+    if (e instanceof MouseEvent) {
+      const rect = card.getBoundingClientRect();
+      spawnFloat(e.clientX - rect.left - 10, e.clientY - rect.top - 20);
+    }
+
+    try {
+      await fetch('/api/counter', { method: 'POST' });
+      // SSE will broadcast the authoritative count back to all clients
+    } catch { /* silent — optimistic count already shown */ }
+  }
+
+  card.addEventListener('click',   handleClick);
+  card.addEventListener('keydown', handleClick);
+</script>
+
+<style>
+  #counter-num.bump { animation: bump 0.25s ease; }
+
+  @keyframes bump {
+    0%   { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+
+  .live-dot {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .25; }
+  }
+
+  /* +1 floating animation */
+  :global(.float-num) {
+    position:   absolute;
+    font-size:  21px;
+    font-weight: 700;
+    color:      var(--amber);
+    pointer-events: none;
+    animation:  floatUp .7s ease forwards;
+    font-family: var(--mono);
+  }
+
+  @keyframes floatUp {
+    0%   { opacity: 1; transform: translateY(0);    }
+    100% { opacity: 0; transform: translateY(-60px); }
+  }
+</style>

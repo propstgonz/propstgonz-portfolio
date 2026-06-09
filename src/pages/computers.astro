@@ -1,35 +1,39 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import PCInfo from "../components/PCInfo.astro";
-import { computers } from "../data/computers";
-export const prerender = true
-
-const PAGE_PROPS = {
-  title: "Computers",
-  description: "my computers.",
-  image: "/metaimage.png",
-};
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import PCInfo from '../components/PCInfo.astro';
+import { computers } from '../data/computers';
 ---
 
-<Layout {...PAGE_PROPS}>
-  <main
-    class="min-h-screen flex flex-col items-center justify-center gap-6 p-4 sm:p-6"
-  >
-    {
-      computers.map((pc) => (
-        <PCInfo server:defer
-          name={pc.name}
-          ascii={pc.ascii}
-          specs={Object.fromEntries(
-            Object.entries(pc.specs).map(([k, v]) => [k, v ?? ""])
-          )}
-        />
-      ))
-    }
+<Layout title="Computers — propstgonz">
+  <Header activePage="/computers" />
+
+  <main class="page">
+    <div class="sec-hd" style="margin-bottom: 24px;">
+      <span class="sec-hd-bar"></span>
+      <span class="sec-hd-title">My machines</span>
+      <span class="sec-hd-rule"></span>
+      <span class="note">yes I name them</span>
+    </div>
+
+    <ul class="pc-grid">
+      {computers.map(pc => (
+        <li><PCInfo pc={pc} /></li>
+      ))}
+    </ul>
   </main>
-  <div class="flex justify-center p-4">
-    <a href="/hub" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-      Back to hub
-    </a>
-  </div>
+
+  <Footer />
 </Layout>
+
+<style>
+  .page    { max-width: 880px; margin: 0 auto; padding: 28px 20px; }
+  .note    { font-size: 10px; color: var(--text3); white-space: nowrap; }
+  .pc-grid {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap:                   14px;
+    list-style:            none;
+  }
+</style>

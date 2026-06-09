@@ -1,70 +1,37 @@
-import type { APIContext } from "astro";
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config();
+import type { APIRoute } from 'astro';
+import nodemailer from 'nodemailer';
 
-console.log("SMTP_USER:", process.env.SMTP_USER);
-console.log("SMTP_PASS:", process.env.SMTP_PASS);
-
-// Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  host: "mail.baronette.es",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
-export async function POST({ request }: APIContext) {
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const formData = await request.formData();
+    const { name, email, message } = await request.json() as {
+      name: string; email: string; message: string;
+    };
 
-    const name = formData.get("name")?.toString() || "";
-    const email = formData.get("email")?.toString() || "";
-    const message = formData.get("message")?.toString() || "";
-    const file = formData.get("file");
-
-    const attachments = [];
-    if (file && typeof file !== "string") {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      if (buffer.length > 25 * 1024 * 1024) {
-        return new Response(
-          JSON.stringify({ ok: false, error: "Your file exceeds 25MB" }),
-          { status: 400 }
-        );
-      }
-
-      attachments.push({
-        filename: file.name,
-        content: buffer,
-        contentType: file.type,
-      });
+    if (!name?.trim() || !email?.trim() || !message?.trim()) {
+      return new Response(JSON.stringify({ error: 'Missing fields' }), { status: 400 });
     }
 
-    const info = await transporter.sendMail({
-      from: `"${name}" <${process.env.SMTP_USER}>`,
-      to: "propstgonz@baronette.es",
-      subject: "Nuevo mensaje desde el portafolio",
-      text: `Name: ${name}\nEmail: ${email}\nMessage:\n${message}`,
-      html: `
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p>${message}</p>
-      `,
-      attachments,
+    const transporter = nodemailer.createTransport({
+      host:   import.meta.env.SMTP_HOST,
+      port:   Number(import.meta.env.SMTP_PORT ?? 587),
+      secure: import.meta.env.SMTP_SECURE === 'true',
+      auth: {
+        user: import.meta.env.SMTP_USER,
+        pass: import.meta.env.SMTP_PASS,
+      },
     });
 
-    return new Response(
-      JSON.stringify({ ok: true, messageId: info.messageId }),
-      { status: 200 }
-    );
-  } catch (err: any) {
-    console.error(err);
-    return new Response(
-      JSON.stringify({ ok: false, error: err.message }),
-      { status: 500 }
-    );
+    await transporter.sendMail({
+      from:    `"${name}" <${import.meta.env.SMTP_USER}>`,
+      replyTo: email,
+      to:      import.meta.env.CONTACT_TO,
+      subject: `[portfolio] Message from ${name}`,
+      text:    `From: ${name} <${email}>\n\n${message}`,
+    });
+
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+  } catch (err) {
+    console.error('[sendMail]', err);
+    return new Response(JSON.stringify({ error: 'Failed to send' }), { status: 500 });
   }
-}
+};

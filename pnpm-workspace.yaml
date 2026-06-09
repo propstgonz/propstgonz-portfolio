@@ -1,6 +1,0 @@
-"pnpm": {
-  "onlyBuiltDependencies": [
-    "esbuild",
-    "sharp"
-  ]
-}

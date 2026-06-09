@@ -1,62 +1,27 @@
 ---
 import Layout from './Layout.astro';
-import fallbackImg from '/public/logbook.png';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 
-const { frontmatter } = Astro.props;
+interface Props {
+  title:       string;
+  description?: string;
+}
 
-const PAGE_PROPS = {
-  title: frontmatter?.title || '',
-  description: frontmatter?.description || '',
-  image: frontmatter?.image || null,
-};
-
-const fallbackSrc = fallbackImg && fallbackImg.src ? fallbackImg.src : fallbackImg;
-
-const imageSrc =
-  frontmatter?.image?.url ||
-  frontmatter?.image?.src ||
-  (typeof frontmatter?.image === 'string' ? frontmatter.image : null);
-
-const imageAlt =
-  frontmatter?.image?.alt || frontmatter?.image?.altText || frontmatter?.title || 'Imagen del post';
-
-const pubDateObj = frontmatter?.pubDate ? new Date(frontmatter.pubDate) : null;
-const pubDateDisplay = pubDateObj
-  ? pubDateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
-  : '';
+const { title, description } = Astro.props;
 ---
-
-<Layout {...PAGE_PROPS}>
-  <h1 class="text-4xl font-bold mb-8 mt-8 text-center">{PAGE_PROPS.title}</h1>
-
-  <div class="flex flex-col items-center gap-8 lg:max-w-[800px] mx-auto">
-    <div class="flex flex-col justify-center items-center space-y-4 text-center">
-      <div>
-        <p class="text-sm text-gray-500">Fecha: {pubDateDisplay}</p>
-        <p class="text-sm text-gray-500">Autor: {frontmatter?.author || ''}</p>
-      </div>
-
-      <img
-        class="rounded-md shadow-md w-full max-w-[320px] object-cover"
-        src={imageSrc || fallbackSrc}
-        alt={imageAlt}
-      />
-    </div>
-
-    <article class="w-full text-center">
-      <div class="p-6 max-w-[700px] mx-auto">
-        <p class="mb-6 italic">{PAGE_PROPS.description}</p>
-        <slot />
-      </div>
-    </article>
-  </div>
-
-  <div class="flex justify-center">
-    <a
-      class="rounded-md px-8 py-2 mt-12 bg-cyan-300 text-neutral-900 hover:bg-cyan-400 hover:text-neutral-100 transition-colors duration-300"
-      href="/blog"
-    >
-      Volver
-    </a>
-  </div>
+<Layout title={`${title} — propstgonz`} description={description}>
+  <Header activePage="/blog" />
+  <main class="blog-layout">
+    <slot />
+  </main>
+  <Footer />
 </Layout>
+
+<style>
+  .blog-layout {
+    max-width: 720px;
+    margin:    0 auto;
+    padding:   28px 20px;
+  }
+</style>

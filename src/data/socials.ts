@@ -1,26 +1,27 @@
-export const socials = [
+export interface Social {
+  label:    string;
+  href:     string;
+  icon:     string;   // path to /public/icons/svg/*.svg
+  external: boolean;
+}
+
+export const socials: Social[] = [
   {
-    label: "GitHub",
-    href: "https://github.com/propstgonz",
+    label:    'GitHub',
+    href:     'https://github.com/propstgonz',
+    icon:     '/icons/svg/github.svg',
     external: true,
-    icon: "/icons/svg/github.svg",
   },
   {
-    label: "Discord",
-    href: "https://discord.com/users/1000141861333258393",
+    label:    'Discord',
+    href:     'https://discord.com/users/propstgonz',
+    icon:     '/icons/svg/discord.svg',
     external: true,
-    icon: "/icons/svg/discord.svg",
   },
   {
-    label: "Email",
-    href: "mailto:propstgonz@baronette.es",
+    label:    'propstgonz@baronette.es',
+    href:     'mailto:propstgonz@baronette.es',
+    icon:     '/icons/svg/email.svg',
     external: false,
-    icon: "/icons/svg/email.svg",
-  },
-  {
-    label: "Instagram",
-    href: "https://www.instagram.com/propstgonz/",
-    external: true,
-    icon: "/icons/svg/instagram.svg",
   },
 ];

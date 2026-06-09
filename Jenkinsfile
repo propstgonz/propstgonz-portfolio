@@ -2,64 +2,48 @@ pipeline {
   agent any
 
   options {
-    skipDefaultCheckout()
+    timeout(time: 15, unit: 'MINUTES')
+    disableConcurrentBuilds()
   }
 
   stages {
+
     stage('Checkout') {
       steps {
-        sh 'git config --global --add safe.directory "$WORKSPACE"'
-        echo 'Checking out code...'
+        sh 'git config --global --add safe.directory ${WORKSPACE}'
         checkout scm
+        echo "Building commit: ${GIT_COMMIT[0..6]}"
       }
     }
 
-    stage('Stop Previous Deployment') {
+    stage('Build') {
       steps {
-        script {
-          echo 'Stopping previous deployment if exists...'
-          sh 'docker-compose down || true'
-        }
+        sh 'docker compose build --no-cache --pull'
       }
     }
 
-    stage('Recreate web container') {
+    stage('Deploy') {
       steps {
-        sh '''
-          sudo docker compose up -d --build
-        '''
+        sh 'docker compose up -d --remove-orphans'
       }
     }
 
-      stage('Verify Deployment') {
+    stage('Health check') {
       steps {
-        script {
-          echo 'Verifying deployment...'
-          sh '''
-            sleep 5
-            docker-compose ps
-            docker-compose logs --tail=50
-          '''
-        }
+        sleep(time: 10, unit: 'SECONDS')
+        sh 'curl -sf http://localhost:4321/ > /dev/null || (echo "Health check failed" && exit 1)'
       }
-      }
-      stage('Cleanup') {
+    }
+
+    stage('Cleanup') {
       steps {
-        script {
-          echo '🧹 Cleaning up local images...'
-          sh 'docker system prune -f'
-          echo 'Cleanup completed'
-        }
+        sh 'docker image prune -f --filter "dangling=true"'
       }
-      }
+    }
   }
 
   post {
-    success {
-      echo 'Deployment completed successfully.'
-    }
-    failure {
-      echo 'Deployment failed.'
-    }
+    success { echo "✅ Frontend deployed." }
+    failure { echo "❌ Frontend deployment failed — previous container still running." }
   }
 }

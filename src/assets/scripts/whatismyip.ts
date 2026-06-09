@@ -1,25 +1,13 @@
-interface IpifyResponse {
-  ip: string;
-}
+// Fetches the visitor's public IP and updates an element by ID.
+export async function initIpDisplay(elementId: string) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
 
-async function fetchAndUpdateIP(): Promise<void> {
   try {
-    const response = await fetch('https://api.ipify.org?format=json');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = (await response.json()) as IpifyResponse;
-
-    const ipSpan = document.getElementById('client-ip');
-    if (ipSpan) {
-      ipSpan.textContent = data.ip;
-    }
-  } catch (error) {
-    console.error('Failed to fetch IP:', error);
-    const ipSpan = document.getElementById('client-ip');
-    if (ipSpan) {
-      ipSpan.textContent = 'unavailable';
-    }
+    const res  = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json() as { ip: string };
+    el.textContent = data.ip;
+  } catch {
+    el.textContent = 'unknown';
   }
 }
-
-fetchAndUpdateIP();
-
