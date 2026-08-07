@@ -1,34 +1,24 @@
 ---
 import { socials } from '../data/socials';
 ---
-
-<section>
-  <h2 class="text-lg font-semibold text-[#D99058] mb-3">
-    [ socials ]
-  </h2>
-
-  <div class="flex space-x-4">
-    {
-      socials.map((social) => (
-        <a
-          href={social.href}
-          target={social.external ? '_blank' : undefined}
-          rel={social.external ? 'noopener noreferrer' : undefined}
-        >
-          <img 
-            src={social.icon} 
-            alt={social.label} 
-            class="w-8 h-8"
-            loading="lazy" 
-          />
-        </a>
-      ))
-    }
+<section class="font-mono">
+  <div class="sec-hd mb-3">
+    <span class="sec-hd-bar"></span>
+    <span class="sec-hd-title">socials</span>
+    <span class="sec-hd-rule"></span>
   </div>
-  <br>
-  
-  <p class="text-xs text-gray-500 mt-3">
-    Also valid:
-    <code>curl propstgonz.dev/contact (fake, I'll not buy another domain)</code>
-  </p>
+
+  <div class="flex gap-3">
+    {socials.map(social => (
+      <a
+        href={social.href}
+        target={social.external ? '_blank' : undefined}
+        rel={social.external ? 'noopener noreferrer' : undefined}
+        title={social.label}
+        class="btn-icon"
+      >
+        <img src={social.icon} alt={social.label} class="w-4.5 h-4.5" loading="lazy" />
+      </a>
+    ))}
+  </div>
 </section>

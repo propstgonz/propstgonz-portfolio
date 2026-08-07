@@ -1,53 +1,41 @@
 ---
-import BlogPostLayout from '../../layouts/BlogPostLayout.astro';
-import BlogPost from '../../components/BlogPost.astro';
-import { marked } from 'marked';
-import { getPosts, getPostContent } from '../../lib/api';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getPosts, getPostContent, slugFromUrl } from '../../lib/api';
+import { markdownToHtml } from '../../lib/markdown';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/blog');
 
-let html  = '';
+let html = '';
 let title = slug.replace(/-/g, ' ');
 
 try {
-  // Get all posts to find the matching URL
   const posts = await getPosts();
-  const match = posts.find(p => {
-    const name = p.url.split('/').pop()?.replace(/\.md$/, '');
-    return name === slug;
-  });
+  const match = posts.find(p => slugFromUrl(p.url) === slug);
 
   if (!match) return Astro.redirect('/blog');
 
-  // Fetch the post content
   const markdown = await getPostContent(match.url);
 
-  // Extract title from first H1
   const h1 = markdown.match(/^#\s+(.+)/m);
   if (h1) title = h1[1];
 
-  // Strip the H1 so BlogPost.astro renders it as its own heading
   const body = h1 ? markdown.replace(/^#\s+.+\n?/m, '') : markdown;
-  html = await marked(body);
-
+  html = markdownToHtml(body);
 } catch {
   return Astro.redirect('/blog');
 }
 ---
+<Layout title={`${title} — propstgonz`}>
+  <Header activePage="/blog" />
 
-<BlogPostLayout title={title}>
-  <a href="/blog" class="back">← Back to blog</a>
-  <BlogPost html={html} title={title} />
-</BlogPostLayout>
+  <main class="max-w-[720px] mx-auto px-5 pb-16">
+    <a href="/blog" class="inline-block font-mono text-xs text-text3 hover:text-amber transition-colors mb-6">← back to blog</a>
+    <h1 class="text-2xl font-bold text-amber font-mono mb-6">{title}</h1>
+    <div class="prose-post" set:html={html} />
+  </main>
 
-<style>
-  .back {
-    display:         inline-block;
-    font-size:       12px;
-    color:           var(--text2);
-    text-decoration: none;
-    margin-bottom:   24px;
-  }
-  .back:hover { color: var(--amber); }
-</style>
+  <Footer />
+</Layout>

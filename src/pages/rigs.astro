@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import PCInfo from '../components/PCInfo.astro';
+import Tools from '../components/Tools.astro';
+import { computers } from '../data/computers';
+---
+<Layout title="rigs — propstgonz" description="Hardware, stack and self-hosting setup.">
+  <Header activePage="/rigs" />
+
+  <main class="max-w-[880px] mx-auto px-5 pb-16 flex flex-col gap-8">
+
+    <section>
+      <div class="sec-hd mb-4">
+        <span class="sec-hd-bar"></span>
+        <span class="sec-hd-title">rigs</span>
+        <span class="sec-hd-rule"></span>
+      </div>
+      <div class="flex flex-col gap-4">
+        {computers.map(pc => <PCInfo pc={pc} />)}
+      </div>
+    </section>
+
+    <Tools />
+
+    <a href="/faq" class="btn-cta">
+      <div class="min-w-0">
+        <div class="sec-hd mb-2">
+          <span class="sec-hd-bar"></span>
+          <span class="sec-hd-title">faq</span>
+        </div>
+        <p class="text-[13px] text-text2 font-mono">Common questions, answered →</p>
+      </div>
+      <span class="text-text3 text-lg group-hover:text-amber transition-colors shrink-0" aria-hidden="true">→</span>
+    </a>
+
+  </main>
+
+  <Footer />
+</Layout>

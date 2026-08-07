@@ -1,0 +1,36 @@
+---
+import { faq } from '../data/faq';
+---
+<div class="flex flex-col gap-2.5">
+  {faq.map(entry => (
+    <details class="card p-4 group open:border-amber-d/50">
+      <summary class="font-mono text-[13px] text-text cursor-pointer list-none flex items-center justify-between gap-3">
+        <span>{entry.q}</span>
+        <span class="w-6 h-6 rounded-full border border-b1 flex items-center justify-center text-text3 group-open:rotate-45 group-open:text-amber group-open:border-amber-d/50 transition-all shrink-0">+</span>
+      </summary>
+      <p class="text-[13px] text-text2 mt-3 leading-relaxed font-mono [&_a]:text-cyan [&_a]:underline [&_a]:underline-offset-2" set:html={entry.a} />
+    </details>
+  ))}
+</div>
+
+<script>
+  // Hydrates the "what's my ip" joke answer with the real IP, reusing
+  // the same /api/whoami endpoint as the homepage IP widget. Re-runs
+  // on every navigation since #client-ip only exists inside a <details>
+  // that's freshly mounted each time the FAQ page loads.
+  async function hydrateClientIp() {
+    const el = document.getElementById('client-ip');
+    if (!el) return;
+
+    try {
+      const res = await fetch('/api/whoami');
+      const data = (await res.json()) as { ip: string };
+      el.textContent = data.ip;
+    } catch {
+      el.textContent = 'unknown';
+    }
+  }
+
+  hydrateClientIp();
+  document.addEventListener('astro:page-load', hydrateClientIp);
+</script>

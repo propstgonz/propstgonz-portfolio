@@ -1,0 +1,38 @@
+---
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+---
+<div class="rounded-full border-2 border-amber-d/60 overflow-hidden w-16 h-16 shrink-0 relative">
+  <img
+    id="avatar"
+    src="/propstplaceholder.png"
+    alt={`${name} avatar`}
+    class="w-full h-full object-cover absolute inset-0"
+    fetchpriority="high"
+  />
+  <video
+    id="avatar-video"
+    class="w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-500"
+    autoplay
+    loop
+    muted
+    playsinline
+  >
+    <source src="/propstfake.webm" type="video/webm" />
+  </video>
+</div>
+
+<script>
+  // Runs once: this component is transition:persist'd, so it survives
+  // client-side navigations instead of remounting (which used to reset
+  // the avatar back to the static placeholder on every page change).
+  const video = document.getElementById('avatar-video') as HTMLVideoElement | null;
+  if (video) {
+    setTimeout(() => {
+      video.classList.remove('opacity-0');
+    }, 2500);
+  }
+</script>

@@ -1,13 +1,7 @@
-export type TagColor = 'amber' | 'cyan' | 'green' | 'purple' | 'red' | 'default';
+import type { Tag } from '../types/tag';
 
-export interface Tag {
-  label: string;
-  color: TagColor;
-}
-
+// See TagColor in ../types/tag.ts for what each color is supposed to mean.
 export const tags: Tag[] = [
-  { label: 'IT student',   color: 'amber'   },
-  { label: 'Galicia, ES',  color: 'cyan'    },
-  { label: 'self-hosted',  color: 'green'   },
-  { label: 'linux',        color: 'default' },
+  { label: 'IT student', color: 'amber' },
+  { label: 'Galicia, ES', color: 'cyan' },
 ];

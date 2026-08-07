@@ -1,26 +1,26 @@
 {
   "name": "propstgonz-web",
-  "version": "0.3.0",
+  "version": "2.0.0",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev":   "astro dev",
+    "dev": "astro dev",
     "build": "astro build",
+    "preview": "astro preview",
     "start": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node":      "^10.1.0",
-    "@tailwindcss/vite":  "^4.2.2",
-    "dotenv":             "^17.0.0",
-    "marked":             "^16.4.2",
-    "nodemailer":         "^7.0.13",
-    "sharp":              "^0.34.5",
-    "tailwindcss":        "^4.2.2"
+    "@astrojs/node": "^10.1.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "astro": "^6.3.1",
+    "nodemailer": "^7.0.13",
+    "sharp": "^0.34.2",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@types/nodemailer": "^7.0.11",
-    "astro":             "^6.3.1",
-    "typescript":        "^5.7.0"
+    "typescript": "^5.7.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

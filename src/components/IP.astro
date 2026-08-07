@@ -1,1 +1,12 @@
-<script src="../assets/scripts/whatismyip.ts"></script>
+---
+---
+<div class="card px-4 py-3 font-mono text-xs text-text3 flex items-center justify-between">
+  <span>your ip</span>
+  <span id="ip-value" class="text-text2">resolving…</span>
+</div>
+
+<script>
+  import { initIpDisplay } from '../assets/scripts/whoami';
+  initIpDisplay('ip-value');
+  document.addEventListener('astro:page-load', () => initIpDisplay('ip-value'));
+</script>

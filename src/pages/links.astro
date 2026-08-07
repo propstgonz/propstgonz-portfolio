@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import LinkCategoryBlock from '../components/LinkCategoryBlock.astro';
+import { linkCategories } from '../data/links';
+---
+<Layout title="links — propstgonz" description="Sites I like and visit often.">
+  <Header activePage="/links" />
+
+  <main class="max-w-[720px] mx-auto px-5 pb-16 flex flex-col gap-8">
+    <div class="sec-hd">
+      <span class="sec-hd-bar"></span>
+      <span class="sec-hd-title">links</span>
+      <span class="sec-hd-rule"></span>
+      <span class="text-[10px] text-text3 whitespace-nowrap font-mono">sites I like</span>
+    </div>
+
+    {linkCategories.map(category => <LinkCategoryBlock category={category} />)}
+  </main>
+
+  <Footer />
+</Layout>

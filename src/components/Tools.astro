@@ -1,27 +1,41 @@
 ---
-import { tools } from "../data/tools";
-import { Image } from "astro:assets";
+import { Image } from 'astro:assets';
+import { tools } from '../data/tools';
 ---
+<div class="card p-6">
+  <div class="sec-hd mb-5">
+    <span class="sec-hd-bar"></span>
+    <span class="sec-hd-title">stack</span>
+    <span class="sec-hd-rule"></span>
+  </div>
 
-<section>
-  <h2 class="text-lg font-semibold text-[#D99058] mb-3">
-    [ tools I kinda know how to use ]
-  </h2>
-  <ul class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-    {
-      tools.map((tool) => (
-        <li class="bg-[#1f2937] p-2 border border-gray-600 rounded flex items-center gap-2">
-          <Image
-            src={tool.icon}
-            alt={`${tool.name} logo`}
-            width={20}
-            height={20}
-            class="w-5 h-5"
-            loading="lazy"
-          />
-          {tool.name}
+  <ul class="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono">
+    {tools.map(tool => {
+      const El = tool.href ? 'a' : 'div';
+      return (
+        <li>
+          <El
+            href={tool.href}
+            target={tool.href ? '_blank' : undefined}
+            rel={tool.href ? 'noopener noreferrer' : undefined}
+            class="group flex items-center gap-3 p-3 rounded-lg border border-b1 bg-bg/40
+                   transition-all duration-200 hover:border-amber-d hover:bg-amber/5
+                   hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_rgba(217,144,88,0.35)]"
+          >
+            <Image
+              src={tool.icon}
+              alt={`${tool.name} logo`}
+              width={32}
+              height={32}
+              class="w-8 h-8 object-contain shrink-0 grayscale-[20%] group-hover:grayscale-0 transition-all"
+              loading="lazy"
+            />
+            <span class="text-[13px] text-text2 group-hover:text-text transition-colors truncate">
+              {tool.name}
+            </span>
+          </El>
         </li>
-      ))
-    }
+      );
+    })}
   </ul>
-</section>
+</div>

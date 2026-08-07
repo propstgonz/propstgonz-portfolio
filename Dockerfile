@@ -4,7 +4,12 @@ WORKDIR /app
 
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml ./
+# Lockfile + manifest first for better layer caching
+COPY package.json pnpm-lock.yaml .npmrc ./
+
+# onlyBuiltDependencies in package.json/.npmrc pre-approves native build
+# scripts (esbuild) so this never drops into the interactive
+# `pnpm approve-builds` prompt and hangs/fails the image build.
 RUN pnpm install --frozen-lockfile
 
 COPY . .
@@ -21,7 +26,7 @@ WORKDIR /app
 RUN corepack enable
 
 # Only production deps
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile --prod
 
 COPY --from=builder /app/dist ./dist
