@@ -1,0 +1,13 @@
+---
+---
+<p class="font-mono text-[13px] text-cyan min-h-[18px]" id="tw-text"><span class="animate-blink" aria-hidden="true">|</span></p>
+
+<script>
+  import { initTypewriter } from '../assets/scripts/typewriter';
+  import { typewriterMessages } from '../data/aboutme';
+
+  // Runs once: transition:persist keeps this node (and this script's
+  // running timers) alive across navigations, so the message loop
+  // never restarts or leaks timers when moving between pages.
+  initTypewriter('tw-text', typewriterMessages);
+</script>

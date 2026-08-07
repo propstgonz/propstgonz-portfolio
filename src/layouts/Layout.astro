@@ -1,13 +1,14 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 
 interface Props {
-  title?:       string;
+  title?: string;
   description?: string;
 }
 
 const {
-  title       = 'propstgonz',
+  title = 'propstgonz',
   description = 'IT student from Galicia tinkering with things since forever.',
 } = Astro.props;
 ---
@@ -21,18 +22,7 @@ const {
     <meta property="og:image" content="/metaimage.png" />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <!--
-      Preload the avatar so it's fetched before the browser hits the <img> tag.
-      The image lives in public/ and is served with long-lived cache headers via Traefik.
-      fetchpriority="high" bumps it to the top of the network queue.
-    -->
-    <link
-      rel="preload"
-      as="image"
-      href="/propstplaceholder.png"
-      fetchpriority="high"
-    />
+    <ClientRouter fallback="swap" />
   </head>
   <body>
     <slot />

@@ -2,15 +2,147 @@
 
 @theme {
   --animate-blink: blink 1s infinite;
+  --animate-fade-up: fadeUp 0.5s ease-out both;
+  --animate-float-up: floatUp 0.7s ease forwards;
+
+  --color-amber: #d99058;
+  --color-amber-d: #a26b3e;
+  --color-cyan: #38bdf8;
+  --color-green: #4ade80;
+  --color-purple: #a78bfa;
+  --color-red: #f87171;
+  --color-b1: #1f2937;
+  --color-b2: #374151;
+  --color-s2: #0f1117;
+  --color-bg: #080b10;
+  --color-text: #e5e7eb;
+  --color-text2: #9ca3af;
+  --color-text3: #6b7280;
+
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   @keyframes blink {
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-50px); }
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-bg text-text m-0 p-0;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    background-image:
+      radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--color-amber) 6%, transparent), transparent 40%),
+      radial-gradient(circle at 85% 20%, color-mix(in srgb, var(--color-cyan) 5%, transparent), transparent 45%);
+  }
+
+  ::selection {
+    @apply bg-amber text-bg;
+  }
+}
+
+@layer components {
+  /* ── Cards ─────────────────────────────────────────────────────────── */
+  .card {
+    @apply bg-s2 border border-b1 rounded-xl transition-all duration-200;
+  }
+
+  /* ── Section headers: "[ bar ] title ────" ────────────────────────── */
+  .sec-hd {
+    @apply flex items-center gap-2.5;
+  }
+  .sec-hd-bar {
+    @apply w-[3px] h-4 rounded-sm bg-amber shrink-0;
+  }
+  .sec-hd-title {
+    @apply font-mono text-[13px] font-semibold tracking-wide text-text whitespace-nowrap;
+  }
+  .sec-hd-rule {
+    @apply h-px flex-1 bg-b1;
+  }
+
+  /* ── Tags / pills ──────────────────────────────────────────────────── */
+  .tag {
+    @apply inline-flex items-center font-mono text-[11px] px-2.5 py-1 rounded-full border border-b1 text-text2 transition-colors;
+  }
+  .tag-amber { @apply text-amber border-amber-d/40; }
+  .tag-cyan { @apply text-cyan border-cyan/40; }
+  .tag-green { @apply text-green border-green/40; }
+  .tag-purple { @apply text-purple border-purple/40; }
+  .tag-red { @apply text-red border-red/40; }
+
+  /* ── Buttons ───────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply relative w-full inline-flex items-center justify-center gap-2 font-mono text-sm font-bold
+      text-bg py-3 rounded-xl cursor-pointer overflow-hidden
+      transition-all duration-200 ease-out
+      shadow-[0_0_0_1px_rgba(217,144,88,0.4),0_4px_14px_-2px_rgba(217,144,88,0.35)]
+      hover:shadow-[0_0_0_1px_rgba(217,144,88,0.6),0_8px_24px_-4px_rgba(217,144,88,0.55)]
+      hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]
+      disabled:opacity-50 disabled:pointer-events-none;
+    background: linear-gradient(135deg, var(--color-amber), var(--color-amber-d));
+  }
+
+  .btn-nav {
+    @apply px-3.5 py-1.5 rounded-lg font-mono text-[13px] transition-all duration-150;
+  }
+  .btn-nav-active {
+    @apply bg-amber/15 text-amber shadow-[inset_0_0_0_1px_rgba(217,144,88,0.4)];
+  }
+  .btn-nav-idle {
+    @apply text-text2 hover:text-text hover:bg-b1/70;
+  }
+
+  .btn-cta {
+    @apply bg-s2 border border-b1 rounded-xl flex items-center justify-between gap-4 p-5
+      hover:border-amber-d hover:-translate-y-0.5
+      hover:shadow-[0_10px_30px_-10px_rgba(217,144,88,0.35)]
+      transition-all duration-200 ease-out;
+  }
+
+  .btn-icon {
+    @apply w-9 h-9 rounded-lg border border-b1 flex items-center justify-center
+      transition-all duration-200 hover:-translate-y-0.5
+      hover:border-amber-d hover:bg-amber/10 hover:shadow-[0_6px_16px_-4px_rgba(217,144,88,0.4)];
+  }
+
+  /* ── Blog post prose ───────────────────────────────────────────────── */
+  .prose-post {
+    @apply text-[14.5px] leading-[1.75] text-text2;
+  }
+  .prose-post h1, .prose-post h2, .prose-post h3 {
+    @apply text-text font-semibold mt-8 mb-2.5;
+  }
+  .prose-post h1 { @apply text-2xl; }
+  .prose-post h2 { @apply text-xl; }
+  .prose-post h3 { @apply text-lg; }
+  .prose-post p { @apply my-3.5; }
+  .prose-post a {
+    @apply text-cyan underline decoration-cyan/40 underline-offset-2 hover:decoration-cyan transition-colors;
+  }
+  .prose-post code {
+    @apply font-mono bg-b1 text-amber px-1.5 py-0.5 rounded text-[0.9em];
+  }
+  .prose-post pre {
+    @apply bg-s2 border border-b1 rounded-lg p-4 overflow-x-auto my-4;
+  }
+  .prose-post pre code {
+    @apply bg-transparent text-text p-0;
+  }
+  .prose-post ul, .prose-post ol {
+    @apply my-3.5 pl-6;
+  }
+  .prose-post li { @apply my-1; }
 }

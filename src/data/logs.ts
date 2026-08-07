@@ -1,7 +1,4 @@
-export interface LogEntry {
-  date: string;
-  message: string;
-}
+import type { LogEntry } from '../types/log';
 
 export const logs: LogEntry[] = [
   { date: '2025-12-28', message: "I cannot believe how fast time passes..." },
@@ -17,5 +14,4 @@ export const logs: LogEntry[] = [
   { date: '2025-06-10', message: "Moved to Arch by the way." },
 ];
 
-// Number of entries visible before the accordion expands
 export const LOGS_VISIBLE = 3;

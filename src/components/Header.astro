@@ -1,64 +1,31 @@
 ---
-import Image from "astro/components/Image.astro"
-import fakepfp from "/public/propstplaceholder.png"
+import { aboutme } from '../data/aboutme';
+import Avatar from './Avatar.astro';
+import Typewriter from './Typewriter.astro';
+import Nav from './Nav.astro';
+
+interface Props {
+  activePage?: string;
+}
+
+const { activePage = '' } = Astro.props;
 ---
-<header class="mb-12">
-  <div class="max-w-2xl mx-auto">
-    <div
-      class="flex space-x-6 bg-[#1f2937] p-6 rounded-lg mt-12 border border-gray-600"
-    >
-      <div
-        class="rounded-full border-4 border-orange-300 overflow-hidden w-24 h-24 shrink-0 self-start"
-      >
-        <Image
-          id="avatar"
-          src={fakepfp}
-          alt="my fake pfp"
-          class="w-full h-full object-cover"
-        />
-        <video
-          id="avatar-video"
-          class="w-full h-full object-cover hidden"
-          autoplay
-          loop
-          muted
-          playsinline
-        >
-          <source src="/propstfake.webm" type="video/webm">
-        </video>
-      </div>
-      <div class="flex-1 min-w-0 flex flex-col justify-start">
-        <div>
-          <h1 class="text-xl font-bold text-[#D99058]">propstgonz</h1>
-          <p class="text-sm text-gray-400">
-            ~/about — probably overthinking something right now
-          </p>
-        </div>
-        <span
-          id="typed"
-          class="
-            text-cyan-300 block whitespace-normal break-words mt-1
-            leading-snug
-            min-h-[2.4rem]
-            sm:min-h-[1.6rem]
-            after:content-['|'] after:animate-blink after:ml-[2px]"
-          >
-        </span>
+<header class="max-w-[880px] mx-auto px-5 pt-8 pb-6">
+  <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
+    <div transition:persist transition:name="avatar">
+      <Avatar name={aboutme.name} />
+    </div>
+
+    <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+      <h1 class="text-lg font-bold text-amber font-mono leading-none">{aboutme.name}</h1>
+      <p class="text-xs text-text3 font-mono">{aboutme.tagline}</p>
+      <div transition:persist transition:name="typewriter">
+        <Typewriter />
       </div>
     </div>
-  </div>
-  <script>
-    import { startTyping } from "../assets/scripts/typewriter.ts";
-    startTyping();
 
-    setTimeout(() => {
-      const avatarImg = document.getElementById('avatar');
-      const avatarVideo = document.getElementById('avatar-video');
-      
-      if (avatarImg && avatarVideo) {
-        avatarImg.classList.add('hidden');
-        avatarVideo.classList.remove('hidden');
-      }
-    }, 3000); // ms = 3s
-  </script>
+    <!-- Not persisted on purpose: needs to re-render per page so the
+         active nav item stays in sync with the current route. -->
+    <Nav activePage={activePage} />
+  </div>
 </header>

@@ -1,0 +1,34 @@
+---
+import { getPosts, slugFromUrl } from '../lib/api';
+
+let latestPosts: { title: string; slug: string }[] = [];
+try {
+  const posts = await getPosts();
+  latestPosts = posts.slice(0, 3).map(p => ({
+    title: slugFromUrl(p.url).replace(/-/g, ' '),
+    slug: slugFromUrl(p.url),
+  }));
+} catch {
+  latestPosts = [];
+}
+---
+<a href="/blog" class="btn-cta group relative overflow-hidden">
+  <div class="min-w-0 relative z-10">
+    <div class="sec-hd mb-2">
+      <span class="sec-hd-bar"></span>
+      <span class="sec-hd-title">blog</span>
+    </div>
+    {latestPosts.length > 0 ? (
+      <ul class="flex flex-col gap-1 font-mono text-[13px] text-text2">
+        {latestPosts.map(p => (
+          <li class="truncate capitalize">→ {p.title}</li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-[13px] text-text2 font-mono">Thoughts, notes and things I broke — read the latest →</p>
+    )}
+    <p class="text-[11px] text-text3 font-mono mt-2">Posts written in Spanish</p>
+  </div>
+  <span class="text-text3 text-xl group-hover:text-cyan group-hover:translate-x-1 transition-all shrink-0 relative z-10" aria-hidden="true">→</span>
+  <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-cyan/0 via-cyan/5 to-cyan/0"></div>
+</a>

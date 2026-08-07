@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { getPosts } from '../lib/api';
+import { getPosts, slugFromUrl } from '../lib/api';
 
 let posts: { id: string; url: string }[] = [];
 let error = false;
@@ -13,39 +13,36 @@ try {
   error = true;
 }
 
-// Extract a readable slug from the URL (last path segment without extension)
-function slugFrom(url: string): string {
-  const seg = url.split('/').pop() ?? url;
-  return seg.replace(/\.md$/, '').replace(/-/g, ' ');
+function readableTitle(url: string): string {
+  return slugFromUrl(url).replace(/-/g, ' ');
 }
 ---
-
-<Layout title="Blog — propstgonz">
+<Layout title="blog — propstgonz">
   <Header activePage="/blog" />
 
-  <main class="page">
-    <div class="sec-hd" style="margin-bottom: 20px;">
+  <main class="max-w-[860px] mx-auto px-5 pb-16">
+    <div class="sec-hd mb-5">
       <span class="sec-hd-bar"></span>
-      <span class="sec-hd-title">Blog</span>
+      <span class="sec-hd-title">blog</span>
       <span class="sec-hd-rule"></span>
     </div>
 
     {error && (
-      <p class="err">Could not load posts right now. Try again later.</p>
+      <p class="text-[13px] text-text2 font-mono">Could not load posts right now. Try again later.</p>
     )}
 
     {!error && posts.length === 0 && (
-      <p class="empty">Nothing here yet. Check back later.</p>
+      <p class="text-[13px] text-text2 font-mono">Nothing here yet. Check back later.</p>
     )}
 
-    <ul class="post-list">
+    <ul class="flex flex-col gap-2 list-none p-0 m-0">
       {posts.map(post => {
-        const slug = post.url.split('/').pop()?.replace(/\.md$/, '') ?? post.id;
+        const slug = slugFromUrl(post.url);
         return (
           <li>
-            <a href={`/posts/${slug}`} class="post-card card">
-              <span class="post-title">{slugFrom(post.url)}</span>
-              <span class="post-arrow" aria-hidden="true">→</span>
+            <a href={`/posts/${slug}`} class="btn-cta group no-underline text-text">
+              <span class="text-sm font-mono capitalize">{readableTitle(post.url)}</span>
+              <span class="text-text3 text-lg group-hover:text-amber group-hover:translate-x-1 transition-all shrink-0" aria-hidden="true">→</span>
             </a>
           </li>
         );
@@ -55,31 +52,3 @@ function slugFrom(url: string): string {
 
   <Footer />
 </Layout>
-
-<style>
-  .page { max-width: 860px; margin: 0 auto; padding: 28px 20px; }
-
-  .post-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-
-  .post-card {
-    display:         flex;
-    justify-content: space-between;
-    align-items:     center;
-    padding:         14px 16px;
-    text-decoration: none;
-    color:           var(--text);
-    transition:      border-color .15s, color .15s;
-  }
-
-  .post-card:hover { border-color: var(--amber-d); color: var(--amber); }
-
-  .post-title {
-    font-size:   14px;
-    text-transform: capitalize;
-  }
-
-  .post-arrow { color: var(--text3); font-size: 16px; }
-  .post-card:hover .post-arrow { color: var(--amber); }
-
-  .err, .empty { font-size: 13px; color: var(--text2); }
-</style>

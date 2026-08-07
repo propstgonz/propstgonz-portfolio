@@ -1,12 +1,13 @@
 ---
-import { philosophy } from "../data/philosophy.ts";
+import { aboutme } from '../data/aboutme';
 ---
-
-<section>
-  <h2 class="text-lg font-semibold text-[#D99058] mb-3">
-    [ a bit more human, I guess ]
-  </h2>
-  <p class="text-sm text-gray-300 leading-relaxed">
-    {philosophy}
+<section class="card p-6 border-l-[3px] border-amber">
+  <div class="sec-hd mb-3">
+    <span class="sec-hd-bar"></span>
+    <span class="sec-hd-title">philosophy</span>
+    <span class="sec-hd-rule"></span>
+  </div>
+  <p class="text-[13px] text-text2 leading-relaxed font-mono italic">
+    "{aboutme.philosophy}"
   </p>
 </section>

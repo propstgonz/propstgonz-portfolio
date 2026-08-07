@@ -2,122 +2,19 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { faq } from '../data/faq';
+import Faq from '../components/Faq.astro';
 ---
-
-<Layout title="FAQ — propstgonz">
+<Layout title="faq — propstgonz" description="Frequently asked questions.">
   <Header activePage="/faq" />
 
-  <main class="page">
-    <div class="sec-hd" style="margin-bottom: 24px;">
+  <main class="max-w-[720px] mx-auto px-5 pb-16">
+    <div class="sec-hd mb-5">
       <span class="sec-hd-bar"></span>
-      <span class="sec-hd-title">Frequently Asked Questions</span>
+      <span class="sec-hd-title">faq</span>
       <span class="sec-hd-rule"></span>
-      <span class="sec-hd-note">things people actually asked or I made up</span>
     </div>
-
-    <dl class="faq-list">
-      {faq.map((entry, i) => (
-        <div class="faq-item card" id={`faq-${i}`}>
-          <dt>
-            <button
-              class="faq-q"
-              aria-expanded="false"
-              aria-controls={`faq-a-${i}`}
-            >
-              <span>{entry.q}</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-          </dt>
-          <dd class="faq-a" id={`faq-a-${i}`} aria-hidden="true">
-            <p>{entry.a}</p>
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <Faq />
   </main>
 
   <Footer />
 </Layout>
-
-<script>
-  document.querySelectorAll<HTMLButtonElement>('.faq-q').forEach(btn => {
-    const dd   = document.getElementById(btn.getAttribute('aria-controls')!);
-    const icon = btn.querySelector<HTMLSpanElement>('.faq-icon');
-
-    btn.addEventListener('click', () => {
-      const open = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!open));
-      dd?.setAttribute('aria-hidden', String(open));
-      dd?.classList.toggle('open', !open);
-      if (icon) icon.textContent = open ? '+' : '−';
-    });
-  });
-</script>
-
-<style>
-  .page {
-    max-width: 720px;
-    margin:    0 auto;
-    padding:   28px 20px;
-  }
-
-  .sec-hd-note { font-size: 10px; color: var(--text3); white-space: nowrap; }
-
-  .faq-list {
-    display:        flex;
-    flex-direction: column;
-    gap:            8px;
-  }
-
-  .faq-item { overflow: hidden; }
-
-  .faq-q {
-    width:           100%;
-    display:         flex;
-    justify-content: space-between;
-    align-items:     center;
-    gap:             12px;
-    padding:         14px 16px;
-    background:      none;
-    border:          none;
-    color:           var(--text);
-    font-size:       13px;
-    font-weight:     500;
-    font-family:     inherit;
-    cursor:          pointer;
-    text-align:      left;
-    transition:      color .15s;
-  }
-
-  .faq-q:hover { color: var(--amber); }
-
-  .faq-icon {
-    color:       var(--amber);
-    font-size:   18px;
-    line-height: 1;
-    flex-shrink: 0;
-    font-weight: 300;
-    transition:  transform .2s;
-  }
-
-  .faq-a {
-    overflow:        hidden;
-    max-height:      0;
-    transition:      max-height .3s ease, padding .3s;
-    padding:         0 16px;
-  }
-
-  .faq-a.open {
-    max-height: 300px;
-    padding:    0 16px 14px;
-  }
-
-  .faq-a p {
-    font-size:   13px;
-    color:       var(--text2);
-    line-height: 1.75;
-    border-left: 2px solid var(--b2);
-    padding-left: 10px;
-  }
-</style>

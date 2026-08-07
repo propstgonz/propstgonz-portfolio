@@ -1,4 +1,8 @@
 node_modules
 .dockerignore
 Dockerfile
+dist
+.astro
 *.log
+.git
+.env

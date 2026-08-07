@@ -7,40 +7,20 @@ import Footer from '../components/Footer.astro';
 <Layout title="404 — propstgonz">
   <Header />
 
-  <main class="page">
-    <div class="err-wrap">
+  <main class="max-w-[880px] mx-auto px-5 py-16 font-mono">
+    <div class="flex flex-col items-center justify-center text-center gap-3">
       <img
         src="/assets/img/technical-difficulties-tenna.gif"
         alt="Technical difficulties"
-        class="err-gif"
+        class="max-w-[280px] rounded-lg mb-2"
         loading="eager"
       />
-      <h1 class="err-code">404</h1>
-      <p class="err-msg">Page not found.</p>
-      <p class="err-sub">Whatever you were looking for, I probably didn't make it yet.</p>
-      <a href="/" class="err-link">← Go home</a>
+      <h1 class="text-6xl font-bold text-amber font-mono leading-none">404</h1>
+      <p class="text-base text-text font-medium">Page not found.</p>
+      <p class="text-xs text-text2">Whatever you were looking for, I probably didn't make it yet.</p>
+      <a href="/" class="text-xs text-cyan no-underline mt-2 hover:underline">← Go home</a>
     </div>
   </main>
 
   <Footer />
 </Layout>
-
-<style>
-  .page     { max-width: 880px; margin: 0 auto; padding: 60px 20px; }
-
-  .err-wrap {
-    display:         flex;
-    flex-direction:  column;
-    align-items:     center;
-    justify-content: center;
-    text-align:      center;
-    gap:             12px;
-  }
-
-  .err-gif  { max-width: 280px; border-radius: 8px; margin-bottom: 8px; }
-  .err-code { font-size: 64px; font-weight: 700; color: var(--amber); font-family: var(--mono); line-height: 1; }
-  .err-msg  { font-size: 16px; color: var(--text); font-weight: 500; }
-  .err-sub  { font-size: 13px; color: var(--text2); }
-  .err-link { font-size: 12px; color: var(--cyan); text-decoration: none; margin-top: 8px; }
-  .err-link:hover { text-decoration: underline; }
-</style>

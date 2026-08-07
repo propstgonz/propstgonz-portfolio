@@ -1,27 +1,81 @@
 ---
-interface Props {
-  name: string;
-  ascii: string;
-  specs: Record<string, string>;
+interface Spec {
+  label: string;
+  value: string;
 }
-const { name, ascii, specs } = Astro.props;
+
+interface Props {
+  pc: {
+    id:    string;
+    name:  string;
+    os:    string;
+    role:  string;
+    color: string;
+    specs: Spec[];
+  };
+}
+
+const { pc } = Astro.props;
+
+const OS_LOGOS: Record<string, string> = {
+  arch: `      /\\
+     /  \\
+    /\\   \\
+   /  __  \\
+  /  (  )  \\
+ /  ______  \\
+/_/        \\_\\`,
+  ubuntu: `     _
+   _( )_
+ _(_ o _)_
+(_)- o -(_)
+  (_ o _)
+    (_)`,
+  debian: `  _____
+ /  __ \\
+|  /  | |
+|  \\__/ /
+ \\____/
+  \\/`,
+  default: `  _     _
+ | |   | |
+ | |_  | |
+ |  _| | |
+ | |_  | |
+ \___| \_/`
+};
+
+const getLogo = (os: string) => {
+  const normalized = os.toLowerCase();
+  if (normalized.includes('arch')) return OS_LOGOS.arch;
+  if (normalized.includes('ubuntu')) return OS_LOGOS.ubuntu;
+  if (normalized.includes('debian')) return OS_LOGOS.debian;
+  return OS_LOGOS.default;
+};
+
+const logo = getLogo(pc.os);
 ---
 
-<div
-  class="bg-[#1f2937] border border-gray-600 p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-3xl"
->
-  <div class="hidden sm:block overflow-x-auto">
-    <pre
-      class="text-sm text-green-300 leading-relaxed whitespace-pre font-mono">{ascii}</pre>
+<div class="bg-s2 border border-b1 p-6 rounded-2xl flex gap-6 font-mono w-full transition-all hover:border-b2">
+  <div class="flex-shrink-0 text-sm hidden sm:block leading-tight select-none" style={`color: ${pc.color}`}>
+    <pre>{logo}</pre>
   </div>
-
-  <div class="block sm:hidden text-green-300 text-sm space-y-1 mt-2">
-    {
-      Object.entries(specs).map(([key, value]) => (
-        <p>
-          <span class="font-bold">{key}:</span> {value}
-        </p>
-      ))
-    }
+  <div class="flex-1 min-w-0 flex flex-col justify-center">
+    <h3 class="text-lg font-bold mb-3 border-b border-b1 pb-1 flex items-center justify-between" style={`color: ${pc.color}`}>
+      <span>{pc.name}</span>
+      <span class="text-xs font-normal text-text3">[ {pc.role} ]</span>
+    </h3>
+    <div class="text-sm space-y-1">
+      <p>
+        <span class="font-semibold" style={`color: ${pc.color}`}>os</span>: {pc.os}
+      </p>
+      {
+        pc.specs.map((spec) => (
+          <p>
+            <span class="font-semibold" style={`color: ${pc.color}`}>{spec.label.toLowerCase()}</span>: {spec.value}
+          </p>
+        ))
+      }
+    </div>
   </div>
 </div>

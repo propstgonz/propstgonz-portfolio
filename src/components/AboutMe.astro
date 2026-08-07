@@ -1,10 +1,21 @@
 ---
 import { aboutme } from '../data/aboutme';
+import { tags } from '../data/tags';
 ---
+<section class="font-mono">
+  <div class="sec-hd mb-3">
+    <span class="sec-hd-bar"></span>
+    <span class="sec-hd-title">about me</span>
+    <span class="sec-hd-rule"></span>
+  </div>
 
-<section class="max-w-4xl mx-auto p-6 mt-10 bg-[#1a1c26] rounded-2xl shadow-lg">
-  <h2 class="text-lg font-semibold text-[#D99058] mb-3">About me</h2>
-  <p class="text-gray-300">
+  <p class="text-text2 text-[13px] leading-relaxed mb-4">
     {aboutme.bio}
   </p>
+
+  <div class="flex flex-wrap gap-1.5">
+    {tags.map(tag => (
+      <span class:list={['tag', `tag-${tag.color}`]}>{tag.label}</span>
+    ))}
+  </div>
 </section>

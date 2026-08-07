@@ -3,17 +3,22 @@ import nodemailer from 'nodemailer';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { name, email, message } = await request.json() as {
-      name: string; email: string; message: string;
-    };
+    const formData = await request.formData();
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const message = formData.get('message');
 
-    if (!name?.trim() || !email?.trim() || !message?.trim()) {
+    if (
+      typeof name !== 'string' || !name.trim() ||
+      typeof email !== 'string' || !email.trim() ||
+      typeof message !== 'string' || !message.trim()
+    ) {
       return new Response(JSON.stringify({ error: 'Missing fields' }), { status: 400 });
     }
 
     const transporter = nodemailer.createTransport({
-      host:   import.meta.env.SMTP_HOST,
-      port:   Number(import.meta.env.SMTP_PORT ?? 587),
+      host: import.meta.env.SMTP_HOST,
+      port: Number(import.meta.env.SMTP_PORT ?? 587),
       secure: import.meta.env.SMTP_SECURE === 'true',
       auth: {
         user: import.meta.env.SMTP_USER,
@@ -22,11 +27,11 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     await transporter.sendMail({
-      from:    `"${name}" <${import.meta.env.SMTP_USER}>`,
+      from: `"${name}" <${import.meta.env.SMTP_USER}>`,
       replyTo: email,
-      to:      import.meta.env.CONTACT_TO,
+      to: import.meta.env.CONTACT_TO,
       subject: `[portfolio] Message from ${name}`,
-      text:    `From: ${name} <${email}>\n\n${message}`,
+      text: `From: ${name} <${email}>\n\n${message}`,
     });
 
     return new Response(JSON.stringify({ ok: true }), { status: 200 });

@@ -1,16 +1,59 @@
 ---
-import { logs } from "../data/logs";
----
+import { logs, LOGS_VISIBLE } from '../data/logs';
 
-<section>
-  <h2 class="text-lg font-semibold text-[#D99058] mb-3">[ logs ]</h2>
-  <ul class="font-mono text-sm text-green-300 space-y-2">
-    {
-      logs.map((log) => (
-        <li>
-          [{log.date}] {log.message}
-        </li>
-      ))
-    }
+const visible = logs.slice(0, LOGS_VISIBLE);
+const rest = logs.slice(LOGS_VISIBLE);
+---
+<div class="card p-5">
+  <div class="sec-hd mb-3">
+    <span class="sec-hd-bar"></span>
+    <span class="sec-hd-title">changelog</span>
+    <span class="sec-hd-rule"></span>
+  </div>
+
+  <ul class="flex flex-col gap-2 font-mono text-[13px]" id="logs-visible">
+    {visible.map(log => (
+      <li class="flex gap-3">
+        <span class="text-text3 shrink-0">{log.date}</span>
+        <span class="text-text2">{log.message}</span>
+      </li>
+    ))}
   </ul>
-</section>
+
+  {rest.length > 0 && (
+    <>
+      <ul class="flex-col gap-2 font-mono text-[13px] mt-2 hidden" id="logs-rest">
+        {rest.map(log => (
+          <li class="flex gap-3">
+            <span class="text-text3 shrink-0">{log.date}</span>
+            <span class="text-text2">{log.message}</span>
+          </li>
+        ))}
+      </ul>
+      <button
+        id="logs-toggle"
+        class="text-xs text-text3 hover:text-amber mt-3 font-mono transition-colors"
+      >
+        show {rest.length} more ↓
+      </button>
+    </>
+  )}
+</div>
+
+<script>
+  function setup() {
+    const btn = document.getElementById('logs-toggle');
+    const restEl = document.getElementById('logs-rest');
+    if (!btn || !restEl) return;
+
+    btn.addEventListener('click', () => {
+      const isHidden = restEl.classList.contains('hidden');
+      restEl.classList.toggle('hidden');
+      restEl.classList.toggle('flex');
+      btn.textContent = isHidden ? 'show less ↑' : `show more ↓`;
+    });
+  }
+
+  setup();
+  document.addEventListener('astro:page-load', setup);
+</script>
