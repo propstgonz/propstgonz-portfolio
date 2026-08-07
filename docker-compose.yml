@@ -1,26 +1,42 @@
 services:
-  web:
+  propstgonz-web:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: propstgonz-web
     restart: unless-stopped
     env_file: .env
+    environment:
+      # Internal Docker hostname of the backend container.
+      # Both repos share the 'internal' network so this resolves fine.
+      # NOTE: not currently read by this codebase (the click counter is
+      # now self-contained, see COUNTER_FILE below instead of SSE) — kept
+      # for parity with the rest of the infra in case a backend service
+      # is wired back in later. Safe to leave as-is either way.
+      API_URL: http://propstgonz-api:3000
+      COUNTER_FILE: /data/counter.json
     volumes:
       # Persists the click counter on the host's RAID array instead of
       # inside the container, so it survives rebuilds/redeploys.
       - /media/raid/database/portfolio-counter:/data
-    environment:
-      COUNTER_FILE: /data/counter.json
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`propstgonz.baronette.es`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls.certresolver=letsencrypt"
-      - "traefik.http.services.web.loadbalancer.server.port=4321"
+      - "traefik.http.routers.propstgonz-web.rule=Host(`propstgonz.baronette.es`)"
+      - "traefik.http.routers.propstgonz-web.entrypoints=websecure"
+      - "traefik.http.routers.propstgonz-web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.propstgonz-web.loadbalancer.server.port=4321"
+      # Disable proxy buffering — required for SSE to arrive in real time.
+      # No longer strictly needed (the counter now polls instead of
+      # streaming via SSE), but harmless to keep for any future
+      # real-time endpoint, so left in as in the original.
+      - "traefik.http.middlewares.no-buffer.headers.customResponseHeaders.X-Accel-Buffering=no"
+      - "traefik.http.routers.propstgonz-web.middlewares=no-buffer"
     networks:
       - proxy
+      - internal
 
 networks:
   proxy:
     external: true # shared Traefik network — must exist on the host
+  internal:
+    external: true # shared with the backend repo — must exist on the host
