@@ -32,11 +32,11 @@ services:
       - "traefik.http.middlewares.no-buffer.headers.customResponseHeaders.X-Accel-Buffering=no"
       - "traefik.http.routers.propstgonz-web.middlewares=no-buffer"
     networks:
-      - proxy
+      - traefik-net
       - internal
 
 networks:
-  proxy:
+  traefik-net:
     external: true # shared Traefik network — must exist on the host
   internal:
     external: true # shared with the backend repo — must exist on the host
