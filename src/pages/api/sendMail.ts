@@ -1,12 +1,15 @@
 import type { APIRoute } from 'astro';
 import nodemailer from 'nodemailer';
 
+const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024; // 25MB
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const formData = await request.formData();
     const name = formData.get('name');
     const email = formData.get('email');
     const message = formData.get('message');
+    const file = formData.get('file');
 
     if (
       typeof name !== 'string' || !name.trim() ||
@@ -14,6 +17,27 @@ export const POST: APIRoute = async ({ request }) => {
       typeof message !== 'string' || !message.trim()
     ) {
       return new Response(JSON.stringify({ error: 'Missing fields' }), { status: 400 });
+    }
+
+    const attachments: { filename: string; content: Buffer; contentType: string }[] = [];
+
+    if (file && typeof file !== 'string') {
+      const buffer = Buffer.from(await file.arrayBuffer());
+
+      if (buffer.length > MAX_ATTACHMENT_BYTES) {
+        return new Response(
+          JSON.stringify({ error: 'Your file exceeds 25MB' }),
+          { status: 400 },
+        );
+      }
+
+      if (buffer.length > 0) {
+        attachments.push({
+          filename: file.name,
+          content: buffer,
+          contentType: file.type || 'application/octet-stream',
+        });
+      }
     }
 
     const transporter = nodemailer.createTransport({
@@ -32,6 +56,7 @@ export const POST: APIRoute = async ({ request }) => {
       to: import.meta.env.CONTACT_TO,
       subject: `[portfolio] Message from ${name}`,
       text: `From: ${name} <${email}>\n\n${message}`,
+      attachments,
     });
 
     return new Response(JSON.stringify({ ok: true }), { status: 200 });

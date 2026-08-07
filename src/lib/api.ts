@@ -1,5 +1,14 @@
 import type { PostMeta } from '../types/post';
 
+// The real backend (propstgonz-portfolio-backend) wraps the posts array
+// in { status, data, timestamp } — it is NOT a bare array. Support both
+// shapes defensively, but the wrapped one is what actually gets sent.
+interface BackendPostsResponse {
+  status: 'success' | 'error';
+  data: PostMeta[];
+  timestamp: string;
+}
+
 function isPostMeta(value: unknown): value is PostMeta {
   if (typeof value !== 'object' || value === null) return false;
   const v = value as Record<string, unknown>;
@@ -14,30 +23,57 @@ export async function getPosts(): Promise<PostMeta[]> {
     const res = await fetch(endpoint, { signal: AbortSignal.timeout(3000) });
     if (!res.ok) return [];
 
-    const data: unknown = await res.json();
-    if (!Array.isArray(data)) return [];
+    const body: unknown = await res.json();
 
-    return data.filter(isPostMeta);
+    const list = Array.isArray(body)
+      ? body
+      : Array.isArray((body as Partial<BackendPostsResponse> | null)?.data)
+        ? (body as BackendPostsResponse).data
+        : null;
+
+    if (!list) return [];
+    return list.filter(isPostMeta);
   } catch {
     return [];
   }
 }
 
-export async function getPostContent(url: string): Promise<string> {
-  const endpoint = process.env.POSTS_API_ENDPOINT;
+// Origins allowed for fetching individual post content (SSRF guard).
+// Always includes POSTS_API_ENDPOINT's own origin, plus anything listed
+// in POSTS_CONTENT_ORIGINS (comma-separated) — needed because posts are
+// stored as full URLs pointing at a *different* host than the API
+// itself (the nginx "bucket" service, e.g. bucket.baronette.es).
+function getAllowedContentOrigins(): string[] {
+  const configured = (process.env.POSTS_CONTENT_ORIGINS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 
-  // Only fetch URLs that point at the configured posts origin, so a
-  // malformed/malicious entry from the endpoint can't be used to make
-  // the server request arbitrary internal or external resources.
+  const endpoint = process.env.POSTS_API_ENDPOINT;
+  let endpointOrigin: string | null = null;
   if (endpoint) {
     try {
-      const allowedOrigin = new URL(endpoint).origin;
-      const targetOrigin = new URL(url).origin;
-      if (targetOrigin !== allowedOrigin) {
-        throw new Error('Post URL origin not allowed');
-      }
+      endpointOrigin = new URL(endpoint).origin;
+    } catch {
+      endpointOrigin = null;
+    }
+  }
+
+  return [...new Set([...configured, ...(endpointOrigin ? [endpointOrigin] : [])])];
+}
+
+export async function getPostContent(url: string): Promise<string> {
+  const allowedOrigins = getAllowedContentOrigins();
+
+  if (allowedOrigins.length > 0) {
+    let targetOrigin: string;
+    try {
+      targetOrigin = new URL(url).origin;
     } catch {
       throw new Error('Invalid post URL');
+    }
+    if (!allowedOrigins.includes(targetOrigin)) {
+      throw new Error('Post URL origin not allowed');
     }
   }
 

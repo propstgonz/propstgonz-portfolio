@@ -54,6 +54,9 @@ const rest = logs.slice(LOGS_VISIBLE);
     });
   }
 
-  setup();
+  // astro:page-load fires on the initial page load too (since Astro
+  // 5.4.2) — calling setup() separately as well as listening for this
+  // event double-bound every handler on first load (e.g. the click
+  // counter incrementing by 2 per click). One listener is enough.
   document.addEventListener('astro:page-load', setup);
 </script>

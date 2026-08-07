@@ -83,7 +83,10 @@
     card.addEventListener('keydown', onClick);
   }
 
-  setup();
+  // astro:page-load fires on the initial page load too (since Astro
+  // 5.4.2) — calling setup() separately as well as listening for this
+  // event double-bound the click handler on first load, which is why
+  // the counter used to jump by 2 per click instead of 1.
   document.addEventListener('astro:page-load', setup);
 </script>
 

@@ -31,6 +31,8 @@ import { faq } from '../data/faq';
     }
   }
 
-  hydrateClientIp();
+  // astro:page-load fires on the initial page load too (since Astro
+  // 5.4.2), so this listener alone covers both first load and every
+  // subsequent navigation.
   document.addEventListener('astro:page-load', hydrateClientIp);
 </script>

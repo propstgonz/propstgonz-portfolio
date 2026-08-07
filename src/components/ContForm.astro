@@ -6,7 +6,7 @@
   <span class="sec-hd-rule"></span>
 </div>
 
-<form id="contact-form" class="card p-5 flex flex-col gap-3 font-mono">
+<form id="contact-form" class="card p-5 flex flex-col gap-3 font-mono" enctype="multipart/form-data">
   <input
     name="name"
     type="text"
@@ -27,6 +27,12 @@
     required
     class="w-full p-2.5 rounded-lg border border-b1 bg-bg text-sm text-text placeholder-text3 focus:outline-none focus:ring-1 focus:ring-amber h-28 resize-none"
   ></textarea>
+  <input
+    name="file"
+    type="file"
+    accept="image/*,.pdf,.zip,.rar,.doc,.docx,.txt"
+    class="w-full p-2.5 rounded-lg border border-b1 bg-bg text-xs text-text2 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-b1 file:text-text2 file:text-xs file:font-mono file:cursor-pointer hover:file:bg-b2"
+  />
   <button type="submit" id="contact-submit" class="btn-primary">
     send
   </button>
@@ -63,7 +69,7 @@
           status.classList.add('text-green');
           form.reset();
         } else {
-          status.textContent = 'error sending, try again later';
+          status.textContent = result.error || 'error sending, try again later';
           status.classList.add('text-red');
         }
       } catch {
@@ -75,6 +81,9 @@
     });
   }
 
-  setup();
+  // astro:page-load fires on the initial page load too (since Astro
+  // 5.4.2) — calling setup() separately as well as listening for this
+  // event double-bound the submit handler on first load, which meant
+  // the very first message on a fresh page load could get sent twice.
   document.addEventListener('astro:page-load', setup);
 </script>

@@ -13,7 +13,7 @@ external content source.
 | `/rigs` | Rigs (my machines, original specs verbatim from the pre-rewrite site), full stack, FAQ teaser |
 | `/faq` | Frequently asked questions |
 | `/links` | Sites I like, grouped by category |
-| `/blog` | Post list, pulled from an external Markdown source |
+| `/blog` | Post list, pulled from [propstgonz-portfolio-backend](https://github.com/propstgonz/propstgonz-portfolio-backend) |
 | `/posts/[slug]` | Individual post |
 
 ## Tech stack
@@ -62,7 +62,7 @@ island, since there's no UI framework in this project. Notable ones:
   re-initialize on every `astro:page-load` event so they keep working
   correctly across client-side navigations (View Transitions replace DOM
   nodes on every route change; see architecture doc for details)
-- `BlogHighlight.astro`, `NerdyHighlight.astro`, `Philosophy.astro`,
+- `BlogHighlight.astro`, `RigsHighlight.astro`, `Philosophy.astro`,
   `LinkCategoryBlock.astro` — content teasers/blocks, no scripts
 
 ## Environment variables
@@ -98,6 +98,15 @@ The click counter persists to a bind mount on the host
 make sure that path exists on the host before the first `docker compose up`,
 and check write permissions if the container reports errors persisting
 the count.
+
+This service shares the `traefik-net` Docker network with
+[propstgonz-portfolio-backend](https://github.com/propstgonz/propstgonz-portfolio-backend)
+— that network must already exist on the host (`docker network ls`) before
+`docker compose up`, since it's declared `external: true` here rather than
+created by this compose file. Port `4321` is also published to the host
+(not just routed through Traefik) so external health checks — including
+the Jenkins pipeline's `curl localhost:4321` — can reach the container
+directly.
 
 CI/CD is a Jenkins pipeline (`Jenkinsfile`) with five stages: Checkout →
 Build → Deploy → Health check → Cleanup.
