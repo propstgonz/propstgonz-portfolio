@@ -32,15 +32,15 @@ export const faq: FaqEntry[] = [
   },
   {
     q: 'Do you accept contributions?',
-    a: 'I appreciate interest, but most projects here are personal. However, feel free to suggest ideas or improvements!',
+    a: 'Perhaps, ask me before' 
   },
   {
     q: 'Will you update this site again?',
-    a: 'I already rebuilt it once because the old version became impossible to maintain — check the changelog on the homepage for what changed and when.',
+    a: 'I already rebuilt it once because the old version became impossible to maintain, and probably will do it again in the future.',
   },
   {
-    q: 'Why the terminal look?',
-    a: "I love the terminal vibe. If you don't, well... tough luck!",
+    q: 'Why the nerdy look?',
+    a: "Glory to the CPC!",
   },
   {
     q: 'Do you know what my IP is?',

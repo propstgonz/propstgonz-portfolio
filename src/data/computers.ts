@@ -12,7 +12,7 @@ export const computers: Computer[] = [
       { label: 'CPU', value: 'AMD Ryzen 5 7600X @ 4.69GHz' },
       { label: 'GPU', value: 'AMD Radeon RX 7700 XT' },
       { label: 'RAM', value: '32 GB DDR5 6000 MT/s' },
-      { label: 'Disk', value: '1 TB NVMe SSD' },
+      { label: 'Disk', value: '1 TB NVMe SSD + 1 TB SSD + 2 TB HDD' },
       { label: 'Kernel', value: '10.0.26200.0' },
       { label: 'Packages', value: '16 (choco)' },
       { label: 'Shell', value: 'PowerShell 5.1.26100.8875' },
@@ -46,7 +46,7 @@ export const computers: Computer[] = [
   {
     id: 'server',
     name: 'propstgonz@propstgserver',
-    os: 'Ubuntu 26.04 LTS (Resolute Raccoon)',
+    os: 'Ubuntu 26.04 Server LTS (Resolute Raccoon)',
     role: 'Homelab / Self-hosting',
     color: '#E95420', // Ubuntu orange
     specs: [
@@ -59,7 +59,7 @@ export const computers: Computer[] = [
       { label: 'Packages', value: '1412 (dpkg), 3 (snap)' },
       { label: 'Shell', value: 'bash 5.3.9' },
       { label: 'Terminal', value: '/dev/pts/1' },
-      { label: 'Stack', value: 'Docker · Traefik · Jenkins · Vaultwarden · Grafana · Prometheus' },
+      { label: 'Stack', value: 'Docker · Traefik · Jenkins · Vaultwarden · Grafana · Prometheus · Mailserver · Game servers · Discord utils · VPN · +More stuff' },
       { label: 'Local IP', value: '192.168.1.xxx/24 (enp6s0)' },
     ],
   },
