@@ -18,6 +18,13 @@ interface Props {
 const { pc } = Astro.props;
 
 const OS_LOGOS: Record<string, string> = {
+  windows: `  ██████  ██████
+  ██████  ██████
+  ██████  ██████
+
+  ██████  ██████
+  ██████  ██████
+  ██████  ██████`,
   arch: `      /\\
      /  \\
     /\\   \\
@@ -42,11 +49,12 @@ const OS_LOGOS: Record<string, string> = {
  | |_  | |
  |  _| | |
  | |_  | |
- \___| \_/`
+ \\___| \\_/`
 };
 
 const getLogo = (os: string) => {
   const normalized = os.toLowerCase();
+  if (normalized.includes('windows')) return OS_LOGOS.windows;
   if (normalized.includes('arch')) return OS_LOGOS.arch;
   if (normalized.includes('ubuntu')) return OS_LOGOS.ubuntu;
   if (normalized.includes('debian')) return OS_LOGOS.debian;

@@ -2,19 +2,16 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { getPosts, slugFromUrl } from '../lib/api';
+import { getPostSummaries } from '../lib/api';
+import type { PostSummary } from '../types/post';
 
-let posts: { id: string; url: string }[] = [];
+let posts: PostSummary[] = [];
 let error = false;
 
 try {
-  posts = await getPosts();
+  posts = await getPostSummaries();
 } catch {
   error = true;
-}
-
-function readableTitle(url: string): string {
-  return slugFromUrl(url).replace(/-/g, ' ');
 }
 ---
 <Layout title="blog — propstgonz">
@@ -35,18 +32,28 @@ function readableTitle(url: string): string {
       <p class="text-[13px] text-text2 font-mono">Nothing here yet. Check back later.</p>
     )}
 
-    <ul class="flex flex-col gap-2 list-none p-0 m-0">
-      {posts.map(post => {
-        const slug = slugFromUrl(post.url);
-        return (
-          <li>
-            <a href={`/posts/${slug}`} class="btn-cta group no-underline text-text">
-              <span class="text-sm font-mono capitalize">{readableTitle(post.url)}</span>
-              <span class="text-text3 text-lg group-hover:text-amber group-hover:translate-x-1 transition-all shrink-0" aria-hidden="true">→</span>
-            </a>
-          </li>
-        );
-      })}
+    <ul class="flex flex-col gap-3 list-none p-0 m-0">
+      {posts.map(post => (
+        <li>
+          <a href={`/posts/${post.slug}`} class="card group flex gap-4 p-4 no-underline text-text hover:border-amber-d hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-10px_rgba(217,144,88,0.35)]">
+            {post.image?.url && (
+              <img
+                src={post.image.url}
+                alt={post.image.alt}
+                loading="lazy"
+                class="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-lg object-contain bg-b1 border border-b1"
+              />
+            )}
+            <div class="min-w-0 flex flex-col justify-center gap-1.5 py-1">
+              <span class="text-base font-semibold font-mono text-text capitalize truncate">{post.title}</span>
+              {post.description && (
+                <span class="text-[13px] text-text2 leading-relaxed line-clamp-2">{post.description}</span>
+              )}
+            </div>
+            <span class="text-text3 text-lg group-hover:text-amber group-hover:translate-x-1 transition-all shrink-0 self-center ml-auto" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))}
     </ul>
   </main>
 

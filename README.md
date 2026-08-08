@@ -93,11 +93,13 @@ docker compose build --no-cache --pull
 docker compose up -d --remove-orphans
 ```
 
-The click counter persists to a bind mount on the host
-(`/media/raid/database/portfolio-counter`, see `docker-compose.yml`) —
-make sure that path exists on the host before the first `docker compose up`,
-and check write permissions if the container reports errors persisting
-the count.
+The click counter persists to a JSON file at
+`/media/raid/database/portfolio-counter/counter.json` on the host (bind-mounted
+into the container — see `volumes:` below), so it's one shared count for
+every visitor and it survives rebuilds/redeploys. The Jenkins pipeline's
+Preflight stage creates that host directory before every deploy, so a
+missing path can't silently break it — see `docs/ARCHITECTURE.md` for the
+history of why that mattered.
 
 This service shares the `traefik-net` Docker network with
 [propstgonz-portfolio-backend](https://github.com/propstgonz/propstgonz-portfolio-backend)
@@ -108,5 +110,47 @@ created by this compose file. Port `4321` is also published to the host
 the Jenkins pipeline's `curl localhost:4321` — can reach the container
 directly.
 
-CI/CD is a Jenkins pipeline (`Jenkinsfile`) with five stages: Checkout →
-Build → Deploy → Health check → Cleanup.
+### CI/CD (Jenkins)
+
+The `Jenkinsfile` pipeline has six stages: **Checkout → Preflight →
+Snapshot previous image → Build → Deploy → Health check**.
+
+1. **Checkout** — clones the repo, resolves the short commit SHA
+   (`env.GIT_SHA`) via `git rev-parse` for use in every later log line.
+2. **Preflight** — fails fast, before wasting time on a `--no-cache`
+   build, if the Docker daemon isn't reachable, `.env` doesn't exist in
+   the workspace (required by `env_file: .env`), or `docker-compose.yml`
+   doesn't parse (`docker compose config -q`). Also creates
+   `/media/raid/database/portfolio-counter` on the host (idempotent — a
+   plain `mkdir -p`) so the click counter's bind mount always has
+   somewhere to write.
+3. **Snapshot previous image** — if a `propstgonz-web:latest` image
+   already exists on the host (i.e. this isn't the first deploy), tags
+   it `propstgonz-web:rollback` before the build overwrites `:latest`.
+   This is what makes automatic rollback possible: `docker-compose.yml`
+   pins the service to the fixed tag `propstgonz-web:latest` instead of
+   Compose's directory-derived default name, so this tag is stable
+   across Jenkins workspaces.
+4. **Build** — `docker compose build --no-cache --pull`, wrapped in
+   `retry(2)` with a 10-minute timeout per attempt, so a transient
+   registry/network hiccup doesn't fail an otherwise-good build.
+5. **Deploy** — `docker compose up -d --remove-orphans`. If this command
+   itself fails (bad compose file, port conflict, etc.), the pipeline
+   logs the container output, rolls back to `:rollback` if one exists,
+   and fails the build.
+6. **Health check** — polls `http://localhost:4321/` for up to 30
+   seconds. Two outcomes are handled differently on purpose:
+   - **Container not running at all** (it started, then crashed —
+     e.g. an uncaught exception on boot): this is a real failure, not a
+     slow cold start. The pipeline retags `:rollback` back to `:latest`,
+     redeploys it with `docker compose up -d --no-build`, and fails the
+     build so the bad commit is visible without the site going down.
+   - **Container running but not yet answering HTTP 200**: informational
+     only — logged, but never fails the build, since the deploy already
+     succeeded and the container is up.
+
+Dangling (untagged) image layers are pruned in `post { always { ... } }`
+so it runs regardless of outcome; `:latest` and `:rollback` are both
+tagged, so this never deletes the rollback candidate. Only `Preflight`,
+`Build`, and an outright `Deploy`/crashed-container failure can fail the
+pipeline — a slow-to-respond-but-running container never does.

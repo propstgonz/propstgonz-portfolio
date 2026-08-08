@@ -14,25 +14,11 @@ import { faq } from '../data/faq';
 </div>
 
 <script>
+  import { initIpDisplay } from '../assets/scripts/whoami';
+
   // Hydrates the "what's my ip" joke answer with the real IP, reusing
-  // the same /api/whoami endpoint as the homepage IP widget. Re-runs
-  // on every navigation since #client-ip only exists inside a <details>
-  // that's freshly mounted each time the FAQ page loads.
-  async function hydrateClientIp() {
-    const el = document.getElementById('client-ip');
-    if (!el) return;
-
-    try {
-      const res = await fetch('/api/whoami');
-      const data = (await res.json()) as { ip: string };
-      el.textContent = data.ip;
-    } catch {
-      el.textContent = 'unknown';
-    }
-  }
-
-  // astro:page-load fires on the initial page load too (since Astro
-  // 5.4.2), so this listener alone covers both first load and every
-  // subsequent navigation.
-  document.addEventListener('astro:page-load', hydrateClientIp);
+  // the same helper as the homepage IP widget. Re-runs on every
+  // navigation since #client-ip only exists inside a <details> that's
+  // freshly mounted each time the FAQ page loads.
+  document.addEventListener('astro:page-load', () => initIpDisplay('client-ip'));
 </script>

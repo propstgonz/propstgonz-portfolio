@@ -4,12 +4,15 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { getPosts, getPostContent, slugFromUrl } from '../../lib/api';
 import { markdownToHtml } from '../../lib/markdown';
+import { parseFrontmatter } from '../../lib/frontmatter';
+import type { PostFrontmatter } from '../../lib/frontmatter';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/blog');
 
 let html = '';
 let title = slug.replace(/-/g, ' ');
+let meta: PostFrontmatter = {};
 
 try {
   const posts = await getPosts();
@@ -17,12 +20,11 @@ try {
 
   if (!match) return Astro.redirect('/blog');
 
-  const markdown = await getPostContent(match.url);
+  const raw = await getPostContent(match.url);
+  const { data, body } = parseFrontmatter(raw);
 
-  const h1 = markdown.match(/^#\s+(.+)/m);
-  if (h1) title = h1[1];
-
-  const body = h1 ? markdown.replace(/^#\s+.+\n?/m, '') : markdown;
+  meta = data;
+  title = data.title ?? title;
   html = markdownToHtml(body);
 } catch {
   return Astro.redirect('/blog');
@@ -33,7 +35,19 @@ try {
 
   <main class="max-w-[720px] mx-auto px-5 pb-16">
     <a href="/blog" class="inline-block font-mono text-xs text-text3 hover:text-amber transition-colors mb-6">← back to blog</a>
-    <h1 class="text-2xl font-bold text-amber font-mono mb-6">{title}</h1>
+    <h1 class="text-2xl font-bold text-amber font-mono mb-2">{title}</h1>
+    {(meta.pubDate || meta.author) && (
+      <p class="text-xs font-mono text-text3 mb-6">
+        {[meta.author, meta.pubDate].filter(Boolean).join(' — ')}
+      </p>
+    )}
+    {meta.image?.url && (
+      <img
+        src={meta.image.url}
+        alt={meta.image.alt ?? ''}
+        class="w-full max-h-[420px] object-contain bg-b1 rounded-xl border border-b1 mb-6"
+      />
+    )}
     <div class="prose-post" set:html={html} />
   </main>
 

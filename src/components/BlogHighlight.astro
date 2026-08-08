@@ -1,16 +1,11 @@
 ---
-import { getPosts, slugFromUrl } from '../lib/api';
-
-let latestPosts: { title: string; slug: string }[] = [];
-try {
-  const posts = await getPosts();
-  latestPosts = posts.slice(0, 3).map(p => ({
-    title: slugFromUrl(p.url).replace(/-/g, ' '),
-    slug: slugFromUrl(p.url),
-  }));
-} catch {
-  latestPosts = [];
-}
+// No server-side fetch here on purpose: this used to `await getPosts()`
+// during SSR, which meant a slow or unreachable blog backend blocked
+// the *entire home page* from rendering — on every visit, and on every
+// client-side navigation back to "/". The list of latest posts is now
+// fetched client-side from /api/latest-posts after the page has already
+// painted, so the homepage is never at the mercy of a third-party
+// service's uptime or latency. See docs/ARCHITECTURE.md.
 ---
 <a href="/blog" class="btn-cta group relative overflow-hidden">
   <div class="min-w-0 relative z-10">
@@ -18,17 +13,43 @@ try {
       <span class="sec-hd-bar"></span>
       <span class="sec-hd-title">blog</span>
     </div>
-    {latestPosts.length > 0 ? (
-      <ul class="flex flex-col gap-1 font-mono text-[13px] text-text2">
-        {latestPosts.map(p => (
-          <li class="truncate capitalize">→ {p.title}</li>
-        ))}
-      </ul>
-    ) : (
-      <p class="text-[13px] text-text2 font-mono">Thoughts, notes and things I broke — read the latest →</p>
-    )}
+    <ul id="blog-highlight-list" class="hidden flex-col gap-1 font-mono text-[13px] text-text2">
+    </ul>
+    <p id="blog-highlight-fallback" class="text-[13px] text-text2 font-mono">
+      Thoughts, notes and things I broke — read the latest →
+    </p>
     <p class="text-[11px] text-text3 font-mono mt-2">Posts written in Spanish</p>
   </div>
   <span class="text-text3 text-xl group-hover:text-cyan group-hover:translate-x-1 transition-all shrink-0 relative z-10" aria-hidden="true">→</span>
   <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-cyan/0 via-cyan/5 to-cyan/0"></div>
 </a>
+
+<script>
+  async function loadLatestPosts() {
+    const list = document.getElementById('blog-highlight-list');
+    const fallback = document.getElementById('blog-highlight-fallback');
+    if (!list || !fallback) return;
+
+    try {
+      const res = await fetch('/api/latest-posts');
+      const data = (await res.json()) as { posts: { title: string; slug: string }[] };
+
+      if (data.posts.length > 0) {
+        list.innerHTML = data.posts
+          .map((p) => `<li class="truncate capitalize">→ ${p.title}</li>`)
+          .join('');
+        list.classList.remove('hidden');
+        list.classList.add('flex');
+        fallback.classList.add('hidden');
+      }
+    } catch {
+      // Leave the static fallback text in place — never break the
+      // homepage over this.
+    }
+  }
+
+  // astro:page-load fires on the initial page load too (since Astro
+  // 5.4.2), so this listener alone covers both first load and every
+  // subsequent navigation.
+  document.addEventListener('astro:page-load', loadLatestPosts);
+</script>

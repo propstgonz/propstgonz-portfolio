@@ -1,19 +1,27 @@
 services:
-  web:
+  propstgonz-web:
     build:
       context: .
       dockerfile: Dockerfile
+    # Fixed, predictable tag instead of the Compose default (which is
+    # derived from the project/directory name and would silently change
+    # if Jenkins ever runs this from a different workspace path). The
+    # Jenkins pipeline depends on this exact tag to snapshot the
+    # currently-running image before a build and roll back to it if the
+    # new one crashes — see Jenkinsfile's "Snapshot previous image" stage.
+    image: propstgonz-web:latest
     container_name: propstgonz-web
     restart: unless-stopped
     env_file: .env
     environment:
       # Container name of the real backend (propstgonz-portfolio-backend
       # repo's docker-compose: container_name: propstgonz-backend). Not
-      # currently read by this codebase (the click counter is
-      # self-contained, see COUNTER_FILE below instead of SSE) — kept
-      # for parity with the rest of the infra in case something wires
-      # into it later.
+      # currently read by this codebase — kept for parity with the rest
+      # of the infra in case something wires into it later.
       API_URL: http://propstgonz-backend:3000
+      # Read by src/pages/api/counter.ts. Points inside the container at
+      # the file backed by the host bind mount below, so the click
+      # counter survives rebuilds/redeploys instead of resetting.
       COUNTER_FILE: /data/counter.json
     ports:
       # Published to the host so health checks (e.g. the Jenkins pipeline's
@@ -22,8 +30,11 @@ services:
       # nothing on the host itself can.
       - '4321:4321'
     volumes:
-      # Persists the click counter on the host's RAID array instead of
-      # inside the container, so it survives rebuilds/redeploys.
+      # Persists the click counter's JSON file on the host's RAID array
+      # instead of inside the container, so it survives rebuilds/
+      # redeploys. The Jenkins pipeline's Preflight stage creates this
+      # directory before every deploy so a missing path can't silently
+      # break the counter (see docs/ARCHITECTURE.md).
       - /media/raid/database/portfolio-counter:/data
     labels:
       - "traefik.enable=true"
@@ -31,12 +42,15 @@ services:
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=letsencrypt"
       - "traefik.http.services.web.loadbalancer.server.port=4321"
+      # gzip/brotli compression for HTML/CSS/JS responses — cheap,
+      # meaningful speed win for every page, done once here instead of
+      # inside the Node app itself.
+      - "traefik.http.middlewares.web-compress.compress=true"
       # Disable proxy buffering — required for SSE to arrive in real time.
-      # No longer strictly needed (the counter now polls instead of
-      # streaming via SSE), but harmless to keep for any future
-      # real-time endpoint, so left in as in the original.
+      # No longer strictly needed (nothing here streams via SSE anymore),
+      # but harmless to keep for any future real-time endpoint.
       - "traefik.http.middlewares.no-buffer.headers.customResponseHeaders.X-Accel-Buffering=no"
-      - "traefik.http.routers.web.middlewares=no-buffer"
+      - "traefik.http.routers.web.middlewares=web-compress,no-buffer"
     networks:
       - traefik-net
 

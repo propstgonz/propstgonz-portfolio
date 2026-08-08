@@ -145,4 +145,7 @@
     @apply my-3.5 pl-6;
   }
   .prose-post li { @apply my-1; }
+  .prose-post img {
+    @apply max-w-full h-auto rounded-lg border border-b1 my-4;
+  }
 }

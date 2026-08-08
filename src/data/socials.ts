@@ -9,8 +9,14 @@ export const socials: Social[] = [
   },
   {
     label: 'Discord',
-    href: 'https://discord.com/users/propstgonz',
+    href: 'https://discord.com/users/1000141861333258393',
     icon: '/icons/svg/discord.svg',
+    external: true,
+  },
+  {
+    label: 'Steam',
+    href: 'https://steamcommunity.com/id/propstgonz/',
+    icon: '/icons/svg/steam.svg',
     external: true,
   },
   {
