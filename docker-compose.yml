@@ -24,10 +24,13 @@ services:
       # counter survives rebuilds/redeploys instead of resetting.
       COUNTER_FILE: /data/counter.json
     ports:
-      # Published to the host so health checks (e.g. the Jenkins pipeline's
-      # `curl localhost:4321`) can actually reach the container — without
-      # this, Traefik can still route to it via the shared network, but
-      # nothing on the host itself can.
+      # Published to the host for manual debugging (`curl localhost:4321`
+      # from the host itself) — Traefik can already route to the
+      # container via the shared traefik-net network without this. The
+      # Jenkins pipeline's own health check does NOT rely on this
+      # mapping: it execs into the container instead, since Jenkins
+      # commonly runs containerized and its own "localhost" would not be
+      # the host's (see docs/ARCHITECTURE.md).
       - '4321:4321'
     volumes:
       # Persists the click counter's JSON file on the host's RAID array

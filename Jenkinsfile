@@ -130,14 +130,23 @@ pipeline {
               break
             }
 
-            def code = sh(
-              script: "curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://localhost:4321/ || echo 000",
-              returnStdout: true
-            ).trim()
+            // Runs inside the propstgonz-web container itself via
+            // `docker exec` rather than curling localhost:4321 from this
+            // agent — Jenkins itself commonly runs containerized (its own
+            // "localhost" is not the host's), so a plain curl here would
+            // never reach the published port regardless of how healthy
+            // the deploy actually is. `docker exec` always works: it goes
+            // through the same Docker socket already used for every other
+            // `docker` command in this pipeline.
+            def ok = sh(
+              script: "docker exec propstgonz-web wget -q -O /dev/null -T 5 http://127.0.0.1:4321/",
+              returnStatus: true
+            ) == 0
+            def code = ok ? '200' : '000'
 
-            if (code == '200') {
+            if (ok) {
               healthy = true
-              echo "Health check passed on attempt ${i} (HTTP ${code})."
+              echo "Health check passed on attempt ${i}."
               break
             }
 

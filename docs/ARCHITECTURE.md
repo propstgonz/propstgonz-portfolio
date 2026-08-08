@@ -34,7 +34,11 @@ no separate backend process, no external framework like Express.
 
 Backs the click counter (`ClickCounter.astro`). `GET` returns the current
 count as `{ count }`; `POST` increments it by one and returns the new
-value. Both read/write a JSON file on disk — the path comes from
+value. `POST` requests must send a non-form `Content-Type` (the client
+sends `application/json` with an empty `{}` body) — Astro's built-in CSRF
+protection otherwise treats the request as a `<form>` submission and
+rejects it behind Traefik; see "Bugs found and fixed" below for why. Both
+`GET` and `POST` read/write a JSON file on disk — the path comes from
 `COUNTER_FILE`, which in production is a bind-mounted host directory
 (`/media/raid/database/portfolio-counter` — see `docker-compose.yml`'s
 `volumes:`), so the count is one shared number for every visitor and
@@ -342,13 +346,23 @@ the outside but mean very different things:
   required env var, a port already in use inside the container. There is
   nothing to wait for; retrying the HTTP probe would just fail forever.
   This triggers rollback.
-- **The container is running but hasn't answered HTTP 200 yet.** This
-  covers a slow cold start, a brief moment where the Node process is up
-  but not yet listening, or a transient blip in `curl` itself. The
-  container is confirmed alive, so there's no reason to treat this as a
-  failed deploy — it's logged as a warning (with the last 80 lines of
-  container logs attached for whoever looks at the build) and the
-  pipeline continues to `SUCCESS`.
+- **The container is running but hasn't answered a request yet.** This
+  covers a slow cold start or a brief moment where the Node process is up
+  but not yet listening. The container is confirmed alive, so there's no
+  reason to treat this as a failed deploy — it's logged as a warning
+  (with the last 80 lines of container logs attached for whoever looks at
+  the build) and the pipeline continues to `SUCCESS`.
+
+The probe itself runs as `docker exec propstgonz-web wget ...
+http://127.0.0.1:4321/` — from *inside* the container — rather than
+curling `localhost:4321` from the Jenkins agent. Jenkins commonly runs
+containerized itself, in which case its own "localhost" is a different
+network namespace from the host's, so a plain `curl` from the agent would
+never reach the port `docker-compose.yml` publishes no matter how healthy
+the deploy is. `docker exec` sidesteps that entirely: it goes through the
+same Docker socket every other `docker` command in this pipeline already
+uses, and always lands inside the target container's own network
+namespace regardless of where Jenkins itself happens to run.
 
 Conflating these two in an earlier version of this pipeline (a single
 `curl -sf ... || exit 1` after a fixed `sleep 10`) is what used to mark
@@ -431,3 +445,39 @@ similar.
   the container's recent logs on failure) but never fails the build by
   itself. `Build` and `Deploy` failing for real still fails the pipeline,
   as they should.
+- **The health check never once succeeded, even on healthy deploys.**
+  Every single attempt logged `HTTP 000` — curl's code for "couldn't
+  connect at all" — while the container logs in that same build showed
+  `@astrojs/node` had already started listening. Jenkins itself runs in
+  its own container (`/var/jenkins_home/...`), so `curl localhost:4321`
+  executed as a plain agent step was hitting the *Jenkins* container's
+  loopback interface, not the host's — the published port was never
+  reachable from there in the first place, regardless of how the deploy
+  went. This was silent because the stage is informational-only by
+  design (see above), so it just logged a warning on every build forever
+  instead of ever actually confirming anything. Fixed by running the
+  probe with `docker exec propstgonz-web wget ...` instead of curling
+  from the agent — see "Why crashed and slow to respond are handled
+  differently" above.
+- **The click counter didn't work on the deployed site at all.** Every
+  `POST /api/counter` returned `403 Cross-site POST form submissions are
+  forbidden` — Astro's built-in CSRF protection (`security.checkOrigin`,
+  on by default) treats a POST with no explicit non-form `Content-Type`
+  as a `<form>` submission and requires its `Origin` header to exactly
+  match the request's own computed origin. Behind Traefik, `@astrojs/node`
+  doesn't read `X-Forwarded-Proto`, so it always computes its own origin
+  as plain `http://...` even though Traefik terminates TLS and the
+  browser's real `Origin` is `https://propstgonz.baronette.es` — scheme
+  mismatch, request rejected, every time, for every visitor, regardless
+  of what `Origin` header the browser actually sent. Confirmed directly
+  against production: a bare POST failed, a POST with a matching `Origin`
+  header *still* failed, but a POST with `Content-Type: application/json`
+  succeeded immediately — that content type isn't something a plain HTML
+  `<form>` can send, so Astro's form-submission heuristic doesn't apply
+  the origin check to it at all. Fixed by having `ClickCounter.astro`
+  send that header (and an empty JSON body) instead of trying to get
+  Astro to trust the proxy's forwarded headers, which would have meant
+  either a global `security.checkOrigin: false` (weakening CSRF
+  protection for every route, not just this one) or configuring
+  `@astrojs/node` to trust `X-Forwarded-*`, which it doesn't currently
+  support doing.

@@ -36,7 +36,22 @@
 
   async function incrementCount(): Promise<number | null> {
     try {
-      const res = await fetch(API_URL, { method: 'POST' });
+      // Astro's built-in CSRF protection (security.checkOrigin, on by
+      // default) treats any POST without an explicit non-form
+      // Content-Type as a <form> submission and requires its Origin
+      // header to match the request's own origin exactly. Behind
+      // Traefik that check fails even for real same-origin browser
+      // requests, because @astrojs/node doesn't read X-Forwarded-Proto:
+      // it sees the request arrive as plain http, so its own computed
+      // origin never matches the https:// Origin the browser sends.
+      // Sending JSON instead of a form-shaped body sidesteps that
+      // heuristic entirely, without weakening CSRF protection anywhere
+      // else on the site.
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
       if (!res.ok) return null;
       const data = await res.json();
       return typeof data.count === 'number' ? data.count : null;

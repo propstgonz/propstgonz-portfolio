@@ -108,9 +108,9 @@ This service shares the `traefik-net` Docker network with
 — that network must already exist on the host (`docker network ls`) before
 `docker compose up`, since it's declared `external: true` here rather than
 created by this compose file. Port `4321` is also published to the host
-(not just routed through Traefik) so external health checks — including
-the Jenkins pipeline's `curl localhost:4321` — can reach the container
-directly.
+(not just routed through Traefik) for manual debugging (`curl
+localhost:4321` from the host itself) — the Jenkins pipeline's own health
+check no longer relies on it, see below.
 
 ### CI/CD (Jenkins)
 
@@ -140,8 +140,12 @@ Snapshot previous image → Build → Deploy → Health check**.
    itself fails (bad compose file, port conflict, etc.), the pipeline
    logs the container output, rolls back to `:rollback` if one exists,
    and fails the build.
-6. **Health check** — polls `http://localhost:4321/` for up to 30
-   seconds. Two outcomes are handled differently on purpose:
+6. **Health check** — runs `docker exec propstgonz-web wget ...
+   http://127.0.0.1:4321/` for up to 30 seconds, checking from inside the
+   container itself rather than curling `localhost:4321` from the Jenkins
+   agent (Jenkins commonly runs containerized, so its own "localhost" is
+   not the host's — see `docs/ARCHITECTURE.md`). Two outcomes are handled
+   differently on purpose:
    - **Container not running at all** (it started, then crashed —
      e.g. an uncaught exception on boot): this is a real failure, not a
      slow cold start. The pipeline retags `:rollback` back to `:latest`,
