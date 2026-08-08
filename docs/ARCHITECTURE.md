@@ -55,6 +55,28 @@ it was to make sure the host path always exists before the container
 starts, which is now the Jenkins pipeline's job (`Preflight` stage runs
 `mkdir -p` on it before every deploy).
 
+### `GET /api/counter/stream`
+
+Server-Sent Events endpoint that pushes the new count to every open tab
+the moment anyone's `POST /api/counter` writes it, so the number on the
+homepage goes up live for every visitor watching, not just the one who
+clicked. `ClickCounter.astro` opens exactly one `EventSource` per tab
+(guarded at module scope so it survives re-running `setup()` on every
+client-side navigation) and re-queries `#counter-num` on every message
+instead of holding a reference to it, since View Transitions replace that
+node on navigation.
+
+The route itself holds open connections with a `ReadableStream`, backed
+by an in-process `EventEmitter` (`src/lib/counterEvents.ts`) that
+`/api/counter`'s `POST` handler emits on after a successful write — no
+external pub/sub, no polling, just callbacks held in the same Node
+process for as long as this deployment only ever runs one instance of
+the container. A 25-second heartbeat comment keeps the connection alive
+through Traefik, which (like most proxies) will otherwise close an idle
+connection after its own timeout; `docker-compose.yml`'s `no-buffer`
+middleware is what lets chunks reach the browser as they're written
+instead of sitting in Traefik's response buffer until it fills up.
+
 ### `GET /api/latest-posts`
 
 Returns the 3 most recent post titles as `{ posts: [{ title, slug }] }`,

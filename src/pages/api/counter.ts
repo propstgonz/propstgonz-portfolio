@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { counterEvents } from '../../lib/counterEvents';
 
 // Self-contained counter: persists to a JSON file instead of depending
 // on an external counter microservice, so the count is one shared
@@ -49,6 +50,9 @@ export const POST: APIRoute = async () => {
     await writeCount(next);
     return next;
   });
+  // Notifies every open /api/counter/stream connection — see that route
+  // for the other half of this.
+  counterEvents.emit('count', count);
   return new Response(JSON.stringify({ count }), {
     headers: { 'Content-Type': 'application/json' },
   });

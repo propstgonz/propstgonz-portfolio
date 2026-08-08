@@ -46,9 +46,9 @@ services:
       # meaningful speed win for every page, done once here instead of
       # inside the Node app itself.
       - "traefik.http.middlewares.web-compress.compress=true"
-      # Disable proxy buffering — required for SSE to arrive in real time.
-      # No longer strictly needed (nothing here streams via SSE anymore),
-      # but harmless to keep for any future real-time endpoint.
+      # Disable proxy buffering — required for GET /api/counter/stream
+      # (Server-Sent Events, the live click counter) to arrive in real
+      # time instead of sitting in Traefik's response buffer.
       - "traefik.http.middlewares.no-buffer.headers.customResponseHeaders.X-Accel-Buffering=no"
       - "traefik.http.routers.web.middlewares=web-compress,no-buffer"
     networks:

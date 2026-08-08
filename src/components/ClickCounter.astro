@@ -45,6 +45,31 @@
     }
   }
 
+  // A single Server-Sent Events connection, opened once and kept alive
+  // across client-side navigations (this module only ever runs its
+  // top-level code once, even though setup() re-runs on every
+  // astro:page-load) — every open tab hears every visitor's click as it
+  // happens, not just your own. Looks up #counter-num fresh on every
+  // message instead of capturing it, since View Transitions replace that
+  // node on navigation.
+  let liveSource: EventSource | null = null;
+
+  function connectLive() {
+    if (liveSource) return;
+
+    liveSource = new EventSource('/api/counter/stream');
+    liveSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (typeof data.count !== 'number') return;
+        const numEl = document.getElementById('counter-num');
+        if (numEl) setDisplay(numEl, data.count, true);
+      } catch {
+        // Ignore malformed payloads (e.g. a heartbeat comment line).
+      }
+    };
+  }
+
   function setDisplay(numEl: HTMLElement, n: number, animate = false) {
     numEl.textContent = fmt(n);
     if (animate) {
@@ -94,6 +119,8 @@
     fetchCount().then((n) => {
       if (n !== null) setDisplay(numEl, n);
     });
+
+    connectLive();
 
     const onClick = (e: MouseEvent | KeyboardEvent) => handleClick(card, numEl, e);
     card.addEventListener('click', onClick);

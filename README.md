@@ -99,7 +99,9 @@ into the container — see `volumes:` below), so it's one shared count for
 every visitor and it survives rebuilds/redeploys. The Jenkins pipeline's
 Preflight stage creates that host directory before every deploy, so a
 missing path can't silently break it — see `docs/ARCHITECTURE.md` for the
-history of why that mattered.
+history of why that mattered. It also updates live for every open tab via
+Server-Sent Events (`GET /api/counter/stream`) — click it on one device
+and watch it move on another.
 
 This service shares the `traefik-net` Docker network with
 [propstgonz-portfolio-backend](https://github.com/propstgonz/propstgonz-portfolio-backend)
