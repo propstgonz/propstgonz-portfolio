@@ -23,6 +23,10 @@ services:
       # the file backed by the host bind mount below, so the click
       # counter survives rebuilds/redeploys instead of resetting.
       COUNTER_FILE: /data/counter.json
+      # Read by src/lib/metrics.ts. Same bind-mounted directory as the
+      # counter — a sibling file, not a separate mount — so the weekly
+      # visitor log and per-IP tally also survive rebuilds/redeploys.
+      METRICS_FILE: /data/metrics.json
     ports:
       # Published to the host for manual debugging (`curl localhost:4321`
       # from the host itself) — Traefik can already route to the
@@ -33,11 +37,13 @@ services:
       # the host's (see docs/ARCHITECTURE.md).
       - '4321:4321'
     volumes:
-      # Persists the click counter's JSON file on the host's RAID array
-      # instead of inside the container, so it survives rebuilds/
-      # redeploys. The Jenkins pipeline's Preflight stage creates this
-      # directory before every deploy so a missing path can't silently
-      # break the counter (see docs/ARCHITECTURE.md).
+      # Persists the click counter's and the metrics module's JSON files
+      # on the host's RAID array instead of inside the container, so both
+      # survive rebuilds/redeploys. Directory name is a holdover from
+      # when it only held the counter's file — still accurate, just no
+      # longer the whole story. The Jenkins pipeline's Preflight stage
+      # creates this directory before every deploy so a missing path
+      # can't silently break either one (see docs/ARCHITECTURE.md).
       - /media/raid/database/portfolio-counter:/data
     labels:
       - "traefik.enable=true"

@@ -1,28 +1,11 @@
 import type { APIRoute } from 'astro';
+import { resolveClientIp } from '../../lib/ip';
 
-// Resolves the visitor's public IP from proxy headers — Traefik sets
-// X-Forwarded-For by default. Also checks X-Real-IP and CF-Connecting-IP
-// (in case Cloudflare or another edge proxy sits in front of Traefik),
-// falling back to the raw socket address as a last resort. No
-// third-party "what is my ip" service is called.
+// No third-party "what is my ip" service is called — see resolveClientIp
+// in src/lib/ip.ts for how the address is worked out from proxy headers.
 export const GET: APIRoute = async ({ request, clientAddress }) => {
-  const candidates = [
-    request.headers.get('cf-connecting-ip'),
-    request.headers.get('x-real-ip'),
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
-  ];
-
-  let ip = candidates.find((v): v is string => !!v);
-
-  if (!ip) {
-    try {
-      ip = clientAddress;
-    } catch {
-      // clientAddress throws when not available (e.g. static context)
-    }
-  }
-
-  return new Response(JSON.stringify({ ip: ip ?? 'unknown' }), {
+  const ip = resolveClientIp({ request, clientAddress });
+  return new Response(JSON.stringify({ ip }), {
     headers: { 'Content-Type': 'application/json' },
   });
 };

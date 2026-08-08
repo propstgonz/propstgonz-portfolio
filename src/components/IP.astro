@@ -11,4 +11,8 @@
   // 5.4.2), so this listener alone covers both first load and every
   // subsequent navigation — no separate immediate call needed.
   document.addEventListener('astro:page-load', () => initIpDisplay('ip-value'));
+  // Re-resolves immediately if the visitor answers the consent banner
+  // while this widget is already on screen, instead of only updating on
+  // the next navigation.
+  window.addEventListener('propstgonz:consent-changed', () => initIpDisplay('ip-value'));
 </script>

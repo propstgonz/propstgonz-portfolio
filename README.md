@@ -56,8 +56,9 @@ Every interactive piece of the page lives in its own `.astro` component
 with its own scoped `<script>` — the vanilla-JS equivalent of an Astro
 island, since there's no UI framework in this project. Notable ones:
 
-- `Avatar.astro` / `Typewriter.astro` — persisted across navigations
-  (`transition:persist`) so they don't reset on every page change
+- `Avatar.astro` / `Typewriter.astro` / `ConsentBanner.astro` — persisted
+  across navigations (`transition:persist`) so they don't reset on every
+  page change
 - `ClickCounter.astro`, `ContForm.astro`, `IP.astro`, `Logs.astro`, `Faq.astro` —
   re-initialize on every `astro:page-load` event so they keep working
   correctly across client-side navigations (View Transitions replace DOM
@@ -102,6 +103,19 @@ missing path can't silently break it — see `docs/ARCHITECTURE.md` for the
 history of why that mattered. It also updates live for every open tab via
 Server-Sent Events (`GET /api/counter/stream`) — click it on one device
 and watch it move on another.
+
+A separate, opt-in system tracks visits for a weekly traffic report.
+`ConsentBanner.astro` asks once per browser before anything is collected;
+declining means no IP is ever recorded, ever, for that browser — and the
+homepage/FAQ IP widget stays showing "requires consent" instead of
+calling ipify.org, since handing a visitor's IP to that third party is
+its own form of collection. Accepted visits are logged to the same
+bind-mounted directory as the click counter (a sibling `metrics.json`),
+and once a week `src/lib/metrics.ts` emails `METRICS_REPORT_TO` the
+unique-visitor and total-visit counts for that week — no external
+analytics service, no cron job, just a periodic check running inside the
+same Node process. See `docs/ARCHITECTURE.md`'s "Visitor metrics and
+consent" section for the full design.
 
 This service shares the `traefik-net` Docker network with
 [propstgonz-portfolio-backend](https://github.com/propstgonz/propstgonz-portfolio-backend)

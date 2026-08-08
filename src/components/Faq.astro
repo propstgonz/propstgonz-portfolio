@@ -21,4 +21,8 @@ import { faq } from '../data/faq';
   // navigation since #client-ip only exists inside a <details> that's
   // freshly mounted each time the FAQ page loads.
   document.addEventListener('astro:page-load', () => initIpDisplay('client-ip'));
+  // Re-resolves immediately if the visitor answers the consent banner
+  // while this page is already open, instead of only updating on the
+  // next navigation.
+  window.addEventListener('propstgonz:consent-changed', () => initIpDisplay('client-ip'));
 </script>

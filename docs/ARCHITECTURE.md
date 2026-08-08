@@ -114,6 +114,18 @@ strings server-side before anything is sent. On success, sends mail via
 `.env.example`). Returns `{ ok: true }` or `{ error: string }` with an
 appropriate HTTP status.
 
+### `POST /api/track`
+
+Records one visit for the weekly metrics report (see "Visitor metrics
+and consent" below). Only ever called by `ConsentBanner.astro`, and only
+after the visitor has explicitly accepted — nothing calls this route,
+and no IP is ever resolved or stored, for a visitor who declines or
+hasn't answered yet. Resolves the caller's IP with the same
+`resolveClientIp()` helper as `/api/whoami` (`src/lib/ip.ts`), records it
+via `src/lib/metrics.ts`, and returns `{ ok: true }`. Like `/api/counter`,
+requires a non-form `Content-Type` on the request for the same
+CSRF-related reason — see "Bugs found and fixed" below.
+
 ## Visitor IP widget
 
 The `IP` widget on the homepage and the "do you know what my IP is" FAQ
@@ -128,7 +140,75 @@ third-party call at all) — that worked correctly in production behind
 Traefik, but returned a loopback address in local dev with no reverse
 proxy in front to set those headers. It was replaced with the direct
 client-side ipify call so the widget behaves the same way in every
-environment.
+environment. The route itself is still there (`resolveClientIp()` in
+`src/lib/ip.ts`, shared with `/api/track` below) — just no longer wired
+into the IP widget's own display logic.
+
+`initIpDisplay()` is gated behind the same consent as `/api/track` (see
+"Visitor metrics and consent" below): it checks `localStorage`'s
+`propstgonz-consent` before calling ipify at all, and shows "requires
+consent" instead if the visitor hasn't accepted. This isn't about this
+site's own server — it never sees this call — but handing the visitor's
+IP to a third party (ipify.org) is still a form of IP collection, so it
+waits for the same explicit accept rather than firing unconditionally on
+every page load regardless of what the visitor chose.
+
+## Visitor metrics and consent
+
+`ConsentBanner.astro`, included once in `Layout.astro` so it's present
+on every page, gates all visitor tracking behind an explicit opt-in — a
+bottom banner asking to log the visitor's IP and visit count for basic
+traffic stats. The choice is remembered in `localStorage`
+(`propstgonz-consent`) so it's asked at most once per browser:
+
+- **Accept** → calls `POST /api/track` for this visit, and every visit
+  after, without asking again. The IP widget (previous section) also
+  starts resolving and displaying the visitor's IP from this point on.
+- **Decline** → never calls `/api/track`, ever, for that browser. No IP
+  is resolved or stored for a visitor who declines — the route simply
+  never runs. The IP widget stays showing "requires consent" instead of
+  calling ipify.org.
+
+Both buttons dispatch a `propstgonz:consent-changed` `CustomEvent` on
+`window` after recording the choice, so any IP widget already on screen
+updates immediately instead of only taking effect on the next
+navigation — `IP.astro` and `Faq.astro` both listen for it alongside
+their usual `astro:page-load` re-init.
+
+The banner's script deliberately does **not** hook into the
+`astro:page-load` event the way most interactive components in this
+codebase do (see "View Transitions" below). That event fires on every
+client-side navigation, not just the first real page load, so binding
+the tracking call to it would count one visitor browsing several pages
+in one sitting as several "visits." Instead the tracking check runs once
+at module scope, which itself only executes once per real browser
+session — the module stays loaded across View Transitions' client-side
+navigations without re-running, the same property that lets
+`ClickCounter.astro`'s `EventSource` connection open exactly once too.
+
+`src/lib/metrics.ts` persists to a JSON file (`METRICS_FILE`, the same
+bind-mounted directory as the click counter's `COUNTER_FILE` — see
+`docker-compose.yml`) with two parts:
+
+- `perIp` — a lifetime count and last-seen timestamp per IP, never
+  cleared.
+- `log` — every visit since the last weekly report, cleared once that
+  report is actually sent.
+
+A `setInterval` inside that module, started as a side effect the first
+time it's imported (which happens at server startup, since Astro's Node
+adapter loads every route module to build its routing manifest), checks
+hourly whether 7 days have passed since `lastReportAt`. When they have,
+it emails `METRICS_REPORT_TO` (via the same `nodemailer` + `SMTP_*`
+setup as the contact form) the number of unique IPs and the total number
+of visits in `log`, then clears `log` and resets `lastReportAt` — so the
+next report only covers the week that just elapsed. If sending fails for
+any reason (SMTP hiccup, `METRICS_REPORT_TO` not set), `log` and
+`lastReportAt` are left untouched, so the next hourly check retries with
+the same accumulated data instead of silently losing a week's numbers.
+No external cron, no extra container — just a periodic check against the
+same JSON file every visit already writes to, living for as long as the
+Node process does.
 
 ## Blog: the one external API integration
 
@@ -261,10 +341,16 @@ immediately, and call it again on every `astro:page-load` event. That way
 each navigation re-queries the *current* DOM instead of relying on a stale
 reference.
 
-Two components are the deliberate exception: `Avatar.astro` and
+A few components are the deliberate exception: `Avatar.astro` and
 `Typewriter.astro` are marked `transition:persist` in `Header.astro`, so
 they're **not** remounted on navigation at all — their running state (the
 looping typewriter, the avatar video) survives across pages untouched.
+`ConsentBanner.astro` is persisted the same way in `Layout.astro`, for a
+different reason: it needs its tracking check to run exactly once per
+browser session (see "Visitor metrics and consent" above), not once per
+page like the `setup()` pattern above would give it, and persisting it
+also means an undecided visitor who clicks a link before answering keeps
+seeing the same banner instead of it vanishing with the old DOM.
 `Nav.astro` is intentionally *not* persisted, since it needs to re-render
 per page to highlight the correct active link.
 
@@ -278,6 +364,8 @@ See `.env.example` for the full list. Summary:
 | `POSTS_API_ENDPOINT` | `/blog`, `/posts/[slug]`, `/api/latest-posts` | No — blog shows an empty state if unset |
 | `POSTS_CONTENT_ORIGINS` | `/posts/[slug]` | No — but every post will fail to load without it, since content lives on a different origin than the API (see Blog section above) |
 | `COUNTER_FILE` | `/api/counter` | No — falls back to a tmp path locally; Docker sets it to the bind-mounted host path in production |
+| `METRICS_FILE` | `/api/track`, weekly report | No — falls back to a tmp path locally; Docker sets it to the bind-mounted host path in production |
+| `METRICS_REPORT_TO` | Weekly report (`src/lib/metrics.ts`) | No — visits still get recorded for consenting visitors, the weekly email just never sends without it |
 
 ## Docker & the pnpm `onlyBuiltDependencies` fix
 

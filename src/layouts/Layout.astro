@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+import ConsentBanner from '../components/ConsentBanner.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -26,5 +27,8 @@ const {
   </head>
   <body>
     <slot />
+    <div transition:persist>
+      <ConsentBanner />
+    </div>
   </body>
 </html>

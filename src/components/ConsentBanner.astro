@@ -1,0 +1,94 @@
+---
+---
+<div
+  id="consent-banner"
+  class="hidden fixed inset-x-0 bottom-0 z-50 animate-fade-up"
+  role="region"
+  aria-label="Data collection consent"
+>
+  <div class="max-w-[880px] mx-auto px-5 pb-5">
+    <div class="card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
+      <p class="flex-1 min-w-0 font-mono text-[13px] text-text2 leading-relaxed">
+        <span class="text-amber font-semibold">$ ./privacy.sh</span>
+        — this site would like to log your IP and visit count, just to
+        keep basic traffic stats (visits/week, unique visitors). No ads,
+        no third-party trackers, nothing sold. Decline and none of that
+        happens — you won't be asked again.
+      </p>
+      <div class="flex gap-2 shrink-0">
+        <button
+          id="consent-decline"
+          type="button"
+          class="font-mono text-[13px] px-4 py-2 rounded-lg border border-b1 text-text2 hover:text-text hover:bg-b1/70 transition-colors cursor-pointer"
+        >
+          Decline
+        </button>
+        <button
+          id="consent-accept"
+          type="button"
+          class="font-mono text-[13px] font-bold px-4 py-2 rounded-lg text-bg transition-all hover:-translate-y-0.5 cursor-pointer"
+          style="background: linear-gradient(135deg, var(--color-amber), var(--color-amber-d));"
+        >
+          Accept
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CONSENT_KEY = 'propstgonz-consent';
+  const CONSENT_EVENT = 'propstgonz:consent-changed';
+
+  function track() {
+    // Astro's built-in CSRF protection treats any POST without an
+    // explicit non-form Content-Type as a <form> submission and blocks
+    // it behind Traefik (see docs/ARCHITECTURE.md, same issue the click
+    // counter hit) — sending JSON sidesteps that heuristic.
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    }).catch(() => {
+      // Fire-and-forget: a blocked or failed request shouldn't affect
+      // the visitor's experience in any way.
+    });
+  }
+
+  // Deliberately NOT wrapped in an astro:page-load listener: that event
+  // fires on every client-side navigation too (see
+  // docs/ARCHITECTURE.md), which would count one visitor browsing
+  // several pages in one sitting as several "visits." This code instead
+  // runs once, directly, at module scope — which itself only executes
+  // once per real browser session, since View Transitions keep the
+  // module loaded across internal navigations without re-running it.
+  const consent = localStorage.getItem(CONSENT_KEY);
+
+  if (consent === 'accepted') {
+    track();
+  } else if (consent !== 'declined') {
+    const banner = document.getElementById('consent-banner');
+    const acceptBtn = document.getElementById('consent-accept');
+    const declineBtn = document.getElementById('consent-decline');
+
+    if (banner && acceptBtn && declineBtn) {
+      banner.classList.remove('hidden');
+
+      acceptBtn.addEventListener('click', () => {
+        localStorage.setItem(CONSENT_KEY, 'accepted');
+        banner.classList.add('hidden');
+        track();
+        // Lets any already-mounted widget gated on this choice (the IP
+        // display — see src/assets/scripts/whoami.ts) update immediately
+        // instead of only taking effect on the next navigation.
+        window.dispatchEvent(new CustomEvent(CONSENT_EVENT));
+      });
+
+      declineBtn.addEventListener('click', () => {
+        localStorage.setItem(CONSENT_KEY, 'declined');
+        banner.classList.add('hidden');
+        window.dispatchEvent(new CustomEvent(CONSENT_EVENT));
+      });
+    }
+  }
+</script>
