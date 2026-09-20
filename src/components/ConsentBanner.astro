@@ -10,10 +10,12 @@
     <div class="card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
       <p class="flex-1 min-w-0 font-mono text-[13px] text-text2 leading-relaxed">
         <span class="text-amber font-semibold">$ ./privacy.sh</span>
-        — this site would like to log your IP and visit count, just to
-        keep basic traffic stats (visits/week, unique visitors). No ads,
-        no third-party trackers, nothing sold. Decline and none of that
-        happens — you won't be asked again.
+        — this site would like to log your IP, the pages you open, the
+        site you arrived from, and your browser and OS, just to keep
+        basic traffic stats (visits/week, unique visitors, popular
+        pages). No ads, nothing sold, and these stats stay on my own
+        server. Decline and none of that happens — you won't be asked
+        again.
       </p>
       <div class="flex gap-2 shrink-0">
         <button
@@ -39,21 +41,41 @@
 <script>
   const CONSENT_KEY = 'propstgonz-consent';
   const CONSENT_EVENT = 'propstgonz:consent-changed';
+  const SESSION_KEY = 'propstgonz-session';
+
+  function sessionId() {
+    try {
+      let id = sessionStorage.getItem(SESSION_KEY);
+      if (!id) {
+        id = crypto.randomUUID();
+        sessionStorage.setItem(SESSION_KEY, id);
+      }
+      return id;
+    } catch {
+      return '';
+    }
+  }
 
   function track() {
+    if (localStorage.getItem(CONSENT_KEY) !== 'accepted') return;
+
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: '{}',
+      body: JSON.stringify({
+        session: sessionId(),
+        path: location.pathname,
+        referrer: document.referrer,
+      }),
     }).catch(() => {
     });
   }
 
+  document.addEventListener('astro:page-load', track);
+
   const consent = localStorage.getItem(CONSENT_KEY);
 
-  if (consent === 'accepted') {
-    track();
-  } else if (consent !== 'declined') {
+  if (consent !== 'accepted' && consent !== 'declined') {
     const banner = document.getElementById('consent-banner');
     const acceptBtn = document.getElementById('consent-accept');
     const declineBtn = document.getElementById('consent-decline');

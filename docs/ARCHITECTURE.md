@@ -195,37 +195,76 @@ updates immediately instead of only taking effect on the next
 navigation — `IP.astro` and `Faq.astro` both listen for it alongside
 their usual `astro:page-load` re-init.
 
-The banner's script deliberately does **not** hook into the
-`astro:page-load` event the way most interactive components in this
-codebase do (see "View Transitions" below). That event fires on every
-client-side navigation, not just the first real page load, so binding
-the tracking call to it would count one visitor browsing several pages
-in one sitting as several "visits." Instead the tracking check runs once
-at module scope, which itself only executes once per real browser
-session — the module stays loaded across View Transitions' client-side
-navigations without re-running, the same property that lets
-`ClickCounter.astro`'s `EventSource` connection open exactly once too.
+The banner's script binds tracking to `astro:page-load`, so every page a
+visitor opens is recorded, not just the first. An earlier version ran the
+tracking call once at module scope instead, specifically to avoid counting
+one visitor browsing several pages as several "visits" — but that also
+meant no per-page data existed at all, which is what the weekly report now
+reports on. Both numbers are kept instead: a random session id is stored in
+`sessionStorage` and sent with every call, so `sessions` still counts one
+per browser session while `page views` counts each page.
+
+### What is collected
+
+Everything below is sent only after the visitor accepts, and none of it
+leaves the server. The banner text lists all of it, and it must be kept in
+sync with this list — collecting anything the banner does not name breaks
+the promise the visitor agreed to.
+
+| Field | Source | Notes |
+| --- | --- | --- |
+| `ip` | `X-Forwarded-For` via `resolveClientIp` | Masked to the first two octets in the report |
+| `path` | Client | Capped at 200 chars, forced to start with `/` |
+| `referrer` | Client | Reduced to a bare hostname; the site's own host is marked `internal` and left out of the arrivals breakdown, so "direct" means a genuine no-referrer arrival rather than internal navigation |
+| `browser` / `os` | `User-Agent` header | Coarse buckets only, parsed server-side |
+| `session` | `sessionStorage` random id | Capped at 64 chars, stripped to `[\w-]` |
+
+`path`, `referrer` and `session` come from the client and are therefore
+untrusted: `/api/track` length-caps and sanitises all three before they
+reach the metrics file, so a crafted request cannot bloat that file or
+inject arbitrary text into the report email.
+
+### Storage and the weekly report
 
 `src/lib/metrics.ts` persists to a JSON file (`METRICS_FILE`, the same
 bind-mounted directory as the click counter's `COUNTER_FILE` — see
-`docker-compose.yml`) with two parts:
+`docker-compose.yml`) with three parts:
 
-- `perIp` — a lifetime count and last-seen timestamp per IP, never
-  cleared.
-- `log` — every visit since the last weekly report, cleared once that
+- `perIp` — a count plus first-seen and last-seen timestamps per IP.
+  `firstSeen` is what distinguishes a new visitor from a returning one.
+- `log` — every page view since the last weekly report, cleared once that
   report is actually sent.
+- `previous` — the previous week's totals, kept only so the report can show
+  a week-over-week change.
 
-A `setInterval` inside that module, started as a side effect the first
-time it's imported (which happens at server startup, since Astro's Node
-adapter loads every route module to build its routing manifest), checks
-hourly whether 7 days have passed since `lastReportAt`. When they have,
-it emails `METRICS_REPORT_TO` (via the same `nodemailer` + `SMTP_*`
-setup as the contact form) the number of unique IPs and the total number
-of visits in `log`, then clears `log` and resets `lastReportAt` — so the
-next report only covers the week that just elapsed. If sending fails for
-any reason (SMTP hiccup, `METRICS_REPORT_TO` not set), `log` and
-`lastReportAt` are left untouched, so the next hourly check retries with
-the same accumulated data instead of silently losing a week's numbers.
+Both `log` and `perIp` are bounded (20000 entries and 5000 IPs, and `perIp`
+entries expire after 180 days). Without those caps the file grows without
+limit, which combined with a spoofable client IP was a disk-exhaustion
+vector.
+
+A `setInterval` inside that module, started as a side effect the first time
+it is imported, checks hourly whether 7 days have passed since
+`lastReportAt`. When they have, it emails `METRICS_REPORT_TO` (via the same
+`nodemailer` + `SMTP_*` setup as the contact form) a plain-text report:
+totals, new vs returning, top pages, referrers, browser/OS, a per-weekday
+bar chart and the most frequent repeat visitors. It then clears `log` and
+resets `lastReportAt`, so the next report only covers the week that just
+elapsed. If sending fails for any reason, `log` and `lastReportAt` are left
+untouched and the next hourly check retries with the same data rather than
+silently losing a week's numbers.
+
+That module is imported **lazily**, not at server startup. An earlier
+version of this document claimed Astro's Node adapter loads every route
+module up front to build its routing manifest; that is not what the built
+output does — route chunks are imported on first use, so the timer only
+starts once `/api/track` is first hit after a restart. This was verified by
+booting the built server with a `lastReportAt` backdated 8 days: no report
+was sent until a tracking request arrived, at which point it fired
+immediately. The practical effect is benign — a week with no consenting
+visitors has an empty `log` and nothing worth reporting anyway — but the
+report is checked on traffic, not on a wall clock, and anything that needs
+to run without traffic cannot live here.
+
 No external cron, no extra container — just a periodic check against the
 same JSON file every visit already writes to, living for as long as the
 Node process does.
