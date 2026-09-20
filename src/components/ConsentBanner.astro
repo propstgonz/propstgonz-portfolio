@@ -41,27 +41,14 @@
   const CONSENT_EVENT = 'propstgonz:consent-changed';
 
   function track() {
-    // Astro's built-in CSRF protection treats any POST without an
-    // explicit non-form Content-Type as a <form> submission and blocks
-    // it behind Traefik (see docs/ARCHITECTURE.md, same issue the click
-    // counter hit) — sending JSON sidesteps that heuristic.
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{}',
     }).catch(() => {
-      // Fire-and-forget: a blocked or failed request shouldn't affect
-      // the visitor's experience in any way.
     });
   }
 
-  // Deliberately NOT wrapped in an astro:page-load listener: that event
-  // fires on every client-side navigation too (see
-  // docs/ARCHITECTURE.md), which would count one visitor browsing
-  // several pages in one sitting as several "visits." This code instead
-  // runs once, directly, at module scope — which itself only executes
-  // once per real browser session, since View Transitions keep the
-  // module loaded across internal navigations without re-running it.
   const consent = localStorage.getItem(CONSENT_KEY);
 
   if (consent === 'accepted') {
@@ -78,9 +65,6 @@
         localStorage.setItem(CONSENT_KEY, 'accepted');
         banner.classList.add('hidden');
         track();
-        // Lets any already-mounted widget gated on this choice (the IP
-        // display — see src/assets/scripts/whoami.ts) update immediately
-        // instead of only taking effect on the next navigation.
         window.dispatchEvent(new CustomEvent(CONSENT_EVENT));
       });
 

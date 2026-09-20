@@ -1,10 +1,3 @@
-/**
- * Minimal frontmatter parser, zero dependencies — mirrors the exact shape
- * the real backend's posts use (title, pubDate, author, layout, and a
- * nested `image: { url, alt }` block). Not a general YAML parser: it only
- * understands top-level `key: value` lines and one level of indentation
- * under `image:`.
- */
 
 export interface PostFrontmatter {
   title?: string;
@@ -54,22 +47,14 @@ export function parseFrontmatter(raw: string): { data: PostFrontmatter; body: st
     else if (key === 'pubDate') data.pubDate = clean;
     else if (key === 'author') data.author = clean;
     else if (key === 'description') data.description = clean;
-    // 'layout' is only meaningful to the backend repo's own Astro content
-    // collection — this codebase renders posts through its own template,
-    // so it's intentionally ignored here.
   }
 
   return { data, body };
 }
 
-// A short, plain-text teaser for the blog listing cards: strips markdown/
-// HTML markup from the body and truncates to maxLen, breaking on a word
-// boundary where possible.
 export function extractExcerpt(body: string, maxLen = 160): string {
   const text = body
     .replace(/\r\n/g, '\n')
-    // real posts sometimes use raw <h1-6>/<a> tags instead of markdown —
-    // keep their text content, drop the tags
     .replace(/<\/?h[1-6]>/gi, ' ')
     .replace(/<a\b[^>]*>/gi, ' ')
     .replace(/<\/a>/gi, ' ')

@@ -34,10 +34,12 @@ no separate backend process, no external framework like Express.
 
 Backs the click counter (`ClickCounter.astro`). `GET` returns the current
 count as `{ count }`; `POST` increments it by one and returns the new
-value. `POST` requests must send a non-form `Content-Type` (the client
-sends `application/json` with an empty `{}` body) — Astro's built-in CSRF
-protection otherwise treats the request as a `<form>` submission and
-rejects it behind Traefik; see "Bugs found and fixed" below for why. Both
+value. The client sends `application/json` with an empty `{}` body. This
+used to be load-bearing — it was how the route dodged Astro's built-in CSRF
+check, which rejected every form-shaped POST behind Traefik. That check has
+since been replaced by the proxy-aware one in `src/middleware.ts`, so the
+JSON content type is now just a normal choice rather than a workaround; see
+"Bugs found and fixed" below. Both
 `GET` and `POST` read/write a JSON file on disk — the path comes from
 `COUNTER_FILE`, which in production is a bind-mounted host directory
 (`/media/raid/database/portfolio-counter` — see `docker-compose.yml`'s
@@ -108,11 +110,29 @@ is why the form silently didn't work before this rewrite). Supports one
 optional file attachment (`file` field), capped at 25MB, forwarded as a
 `nodemailer` attachment.
 
-Required fields: `name`, `email`, `message` — all validated as non-empty
-strings server-side before anything is sent. On success, sends mail via
-`nodemailer` using SMTP credentials from environment variables (see
-`.env.example`). Returns `{ ok: true }` or `{ error: string }` with an
-appropriate HTTP status.
+Required fields: `name`, `email`, `message`. All three are validated
+server-side before anything is sent: non-empty, length-capped (100 / 254 /
+5000), and rejected outright if they contain CR or LF, which is what would
+let a crafted `name` inject extra mail headers through `From:`. `email` is
+additionally checked for a plausible address shape, since it is used as
+`replyTo`.
+
+Rate-limited to 3 messages per IP per 10 minutes, held in a `Map` in
+process memory. Without it the route is an open relay: anyone can drive
+unlimited mail through the `baronette.es` SMTP credentials with an
+attacker-chosen `replyTo`, which is a fast route to the domain being
+blacklisted.
+
+The 25MB attachment cap is enforced against `Content-Length` *before* the
+body is read. Buffering first and measuring afterwards — which is what the
+original did — means an oversized upload exhausts process memory before
+the check is ever reached, so the cap protected nothing.
+
+On success, sends mail via `nodemailer` using SMTP credentials read through
+the `env()` helper in `src/lib/api.ts` (see `.env.example`, and "Bugs found
+and fixed" for why that helper exists rather than plain `import.meta.env`).
+Returns `{ ok: true }` or `{ error: string }` with an appropriate HTTP
+status.
 
 ### `POST /api/track`
 
@@ -569,3 +589,44 @@ similar.
   protection for every route, not just this one) or configuring
   `@astrojs/node` to trust `X-Forwarded-*`, which it doesn't currently
   support doing.
+
+  **Superseded.** That per-caller workaround only ever covered the callers
+  that adopted it. The contact form still sent a real `FormData` object, so
+  `POST /api/sendMail` kept returning `403` for every visitor — the same
+  bug, still live, just somewhere nobody had looked. The fix now sits in
+  one place: `security.checkOrigin` is off in `astro.config.mjs`, and
+  `src/middleware.ts` performs the equivalent check against
+  `X-Forwarded-Proto` instead of the socket. CSRF protection is not
+  weakened — the middleware still rejects a cross-site `Origin`, a missing
+  `Origin`, and an `Origin` that disagrees with the `Host` (all three
+  verified returning `403`). Trusting `X-Forwarded-Proto` is sound here
+  because CSRF defends against browsers, and a browser cannot set that
+  header or forge `Origin`.
+
+- **The contact form never sent anything, for two independent reasons.**
+  The first was the CSRF `403` above, which blocked the request before
+  `nodemailer` ran at all. Behind it sat a second, separate bug: the route
+  read its SMTP settings as `import.meta.env.SMTP_HOST` and friends. Vite
+  substitutes `import.meta.env.KEY` *statically at build time*, and `.env`
+  is listed in `.dockerignore`, so the builder stage compiled with no
+  values at all and baked `undefined` into `dist/`. At runtime
+  `docker-compose`'s `env_file` populated the real `process.env`, but the
+  compiled code no longer read it. `createTransport` therefore always got
+  `host: undefined`. Every other module had already moved to `process.env`
+  (`counter.ts`, `metrics.ts`) or to the `env()` helper in `lib/api.ts`;
+  `sendMail.ts` was the one file that never got either. Fixed by exporting
+  `env()` and using it here too. `env()` now reads `process.env` *first*
+  and falls back to `import.meta.env`, rather than the other way round, so
+  runtime configuration always wins over anything that leaked into the
+  image at build time — the previous order let a value present on the build
+  machine permanently shadow the deployed one.
+
+- **`X-Forwarded-For` was read from the wrong end.** `resolveClientIp` took
+  the *first* entry of the chain, plus `CF-Connecting-IP` and `X-Real-IP`.
+  Traefik *appends* the address it actually saw, so everything to the left
+  of the last entry is supplied by the client and freely spoofable, and
+  neither of the other two headers is set by any proxy in this deployment —
+  they were pure user input. Any visitor could forge their IP, poisoning
+  the visitor metrics and growing `perIp` without bound. Fixed in the
+  shared helper (`src/lib/ip.ts`), which covers `/api/track`, `/api/whoami`
+  and the new rate limiter at once.

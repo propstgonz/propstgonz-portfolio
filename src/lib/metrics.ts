@@ -2,13 +2,10 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import nodemailer from 'nodemailer';
 
-// Only ever written to from /api/track, which is only ever called after
-// the visitor accepts the consent banner (ConsentBanner.astro) — nothing
-// here is reachable without that opt-in.
 const DATA_PATH = process.env.METRICS_FILE ?? '/tmp/propstgonz-metrics.json';
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
+const CHECK_INTERVAL_MS = 60 * 60 * 1000;
 
 interface VisitEntry {
   ip: string;
@@ -21,12 +18,7 @@ interface PerIpStats {
 }
 
 interface MetricsData {
-  // Visits since the last weekly report — cleared once that report is
-  // actually sent, so it always reflects "this week so far."
   log: VisitEntry[];
-  // Lifetime count per IP, never cleared — this is "the number of times
-  // each IP visited" as its own running tally, independent of the
-  // weekly reporting cycle.
   perIp: Record<string, PerIpStats>;
   lastReportAt: string;
 }
@@ -54,8 +46,6 @@ async function writeData(data: MetricsData): Promise<void> {
   await writeFile(DATA_PATH, JSON.stringify(data), 'utf-8');
 }
 
-// Serializes every read-modify-write cycle — a visit being recorded and
-// the weekly reset both touch the same file, and must not interleave.
 let lock: Promise<unknown> = Promise.resolve();
 
 function withLock<T>(fn: () => Promise<T>): Promise<T> {
@@ -117,10 +107,6 @@ async function checkAndMaybeSendReport(): Promise<void> {
     try {
       await sendWeeklyReport(data);
     } catch (err) {
-      // Deliberately does NOT clear the log or advance lastReportAt on
-      // failure (missing METRICS_REPORT_TO, SMTP hiccup, etc.) — the
-      // next hourly check retries with the same accumulated data
-      // instead of silently losing a week's numbers.
       console.error('[metrics] failed to send weekly report', err);
       return;
     }
@@ -131,12 +117,5 @@ async function checkAndMaybeSendReport(): Promise<void> {
   });
 }
 
-// Starts once when this module first loads — Astro's Node adapter loads
-// every route module to build its routing manifest at server startup,
-// so this runs for the lifetime of the process without any external
-// cron or extra container. Checking hourly against a persisted
-// lastReportAt (rather than a single long setTimeout) means a container
-// restart between checks just picks the countdown back up instead of
-// losing it.
 checkAndMaybeSendReport();
 setInterval(checkAndMaybeSendReport, CHECK_INTERVAL_MS);

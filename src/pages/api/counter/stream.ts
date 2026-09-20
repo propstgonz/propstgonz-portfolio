@@ -1,11 +1,6 @@
 import type { APIRoute } from 'astro';
 import { counterEvents } from '../../../lib/counterEvents';
 
-// Server-Sent Events: pushes the new count to every open tab the moment
-// anyone's click writes it (via /api/counter's POST handler), instead of
-// each client polling on a timer. Traefik's `no-buffer` middleware
-// (docker-compose.yml) exists specifically so this streams in real time
-// instead of sitting in a proxy buffer.
 export const GET: APIRoute = async ({ request }) => {
   const encoder = new TextEncoder();
 
@@ -21,8 +16,6 @@ export const GET: APIRoute = async ({ request }) => {
 
       counterEvents.on('count', send);
 
-      // Keeps the connection alive through proxies that close idle
-      // connections after a timeout — Traefik included.
       const heartbeat = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(': heartbeat\n\n'));
@@ -37,7 +30,6 @@ export const GET: APIRoute = async ({ request }) => {
         try {
           controller.close();
         } catch {
-          // already closed
         }
       });
     },

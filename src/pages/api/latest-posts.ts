@@ -1,10 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getPostSummaries } from '../../lib/api';
 
-// Kept separate from the page render on purpose: BlogHighlight.astro
-// fetches this client-side instead of awaiting getPosts() during SSR, so
-// a slow or unreachable blog backend can never block the homepage itself
-// from rendering. See docs/ARCHITECTURE.md.
 export const GET: APIRoute = async () => {
   try {
     const posts = await getPostSummaries();

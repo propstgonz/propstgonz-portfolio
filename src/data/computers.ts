@@ -6,7 +6,7 @@ export const computers: Computer[] = [
     name: 'Propstgonz@B650',
     os: 'Windows 11 Pro',
     role: 'Daily driver / Gaming',
-    color: '#3B82F6', // Windows blue
+    color: '#3B82F6',
     specs: [
       { label: 'Host', value: 'Gigabyte B650 EAGLE' },
       { label: 'CPU', value: 'AMD Ryzen 5 7600X @ 4.69GHz' },
@@ -26,7 +26,7 @@ export const computers: Computer[] = [
     name: 'propstgonz@E5470',
     os: 'Arch Linux',
     role: 'Portable workstation',
-    color: '#38BDF8', // Arch cyan-blue
+    color: '#38BDF8',
     specs: [
       { label: 'Model', value: 'Dell Latitude E5470' },
       { label: 'CPU', value: 'Intel Core i5-6300U @ 3.00GHz' },
@@ -48,7 +48,7 @@ export const computers: Computer[] = [
     name: 'propstgonz@propstgserver',
     os: 'Ubuntu 26.04 Server LTS (Resolute Raccoon)',
     role: 'Homelab / Self-hosting',
-    color: '#E95420', // Ubuntu orange
+    color: '#E95420',
     specs: [
       { label: 'Host', value: 'JINGSHA X79SE PLUS' },
       { label: 'CPU', value: 'Intel Xeon E5-2660 v2 (10C/20T) @ 3.00GHz' },

@@ -1,7 +1,3 @@
-// Retags the last known-good image back to :latest and redeploys it
-// without rebuilding. Shared by the Deploy and Health check stages so
-// any failure after the snapshot — `docker compose up` erroring outright,
-// or the container starting and then crashing — recovers the same way.
 def attemptRollback() {
   def hasRollback = sh(
     script: "docker image inspect ${env.IMAGE_NAME}:rollback > /dev/null 2>&1",
@@ -23,9 +19,6 @@ pipeline {
   agent any
 
   options {
-    // Two build attempts at up to 10 minutes each, plus checkout/deploy/
-    // health check overhead — 25 minutes leaves real margin instead of
-    // the pipeline racing its own retry budget.
     timeout(time: 25, unit: 'MINUTES')
     disableConcurrentBuilds()
     timestamps()
@@ -33,9 +26,6 @@ pipeline {
   }
 
   environment {
-    // Matches docker-compose.yml's `image:` — a fixed tag rather than
-    // Compose's directory-derived default, so rollback can reliably
-    // retag "the previous image" regardless of the Jenkins workspace path.
     IMAGE_NAME = 'propstgonz-web'
   }
 
@@ -59,10 +49,6 @@ pipeline {
           test -f .env || (echo ".env is missing in the workspace — docker-compose.yml requires it (env_file: .env)." && exit 1)
           docker compose config -q
 
-          # The click counter (src/pages/api/counter.ts) writes its JSON
-          # file here through the bind mount in docker-compose.yml.
-          # Created up front, every deploy, so a missing host directory
-          # can never silently break the counter the way it used to.
           mkdir -p /media/raid/database/portfolio-counter
         '''
       }
@@ -88,8 +74,6 @@ pipeline {
 
     stage('Build') {
       steps {
-        // A flaky base-image pull or registry hiccup shouldn't fail an
-        // otherwise-good deploy outright — retry once before giving up.
         retry(2) {
           timeout(time: 10, unit: 'MINUTES') {
             sh 'docker compose build --no-cache --pull'
@@ -130,14 +114,6 @@ pipeline {
               break
             }
 
-            // Runs inside the propstgonz-web container itself via
-            // `docker exec` rather than curling localhost:4321 from this
-            // agent — Jenkins itself commonly runs containerized (its own
-            // "localhost" is not the host's), so a plain curl here would
-            // never reach the published port regardless of how healthy
-            // the deploy actually is. `docker exec` always works: it goes
-            // through the same Docker socket already used for every other
-            // `docker` command in this pipeline.
             def ok = sh(
               script: "docker exec propstgonz-web wget -q -O /dev/null -T 5 http://127.0.0.1:4321/",
               returnStatus: true
@@ -155,10 +131,6 @@ pipeline {
           }
 
           if (!containerUp) {
-            // Real failure: the new image built fine but the app itself
-            // died on startup (bad env var, crash on boot, etc). This is
-            // exactly the case a slow-cold-start health check must NOT be
-            // confused with — the container isn't just slow, it's gone.
             echo 'Container exited after deploy — attempting automatic rollback.'
             sh 'docker compose logs --tail=150 propstgonz-web || true'
             attemptRollback()
@@ -166,10 +138,6 @@ pipeline {
           }
 
           if (!healthy) {
-            // Informational only — a slow cold start or a flaky health
-            // check should never fail a deploy that otherwise succeeded.
-            // The container is confirmed running at this point; it's
-            // just not confirmed to be answering HTTP yet.
             echo 'Container is running but never returned HTTP 200 within 30s — check `docker compose logs propstgonz-web` on the host. Not failing the build over this.'
             sh 'docker compose logs --tail=80 propstgonz-web || true'
           }
@@ -180,8 +148,6 @@ pipeline {
 
   post {
     always {
-      // Only removes dangling (untagged) layers — :latest and :rollback
-      // are both tagged, so this never deletes the rollback candidate.
       sh 'docker image prune -f --filter "dangling=true" || true'
     }
     success {

@@ -1,17 +1,10 @@
 ---
 ---
-<!-- Fixed to exactly 2 lines' worth of height (leading-[18px] * 2) so the
-     header card never resizes as the typewriter cycles between short and
-     long messages — a message that would wrap to a 3rd line is clipped
-     rather than growing the box. -->
 <p class="font-mono text-[13px] text-cyan leading-[18px] h-[36px] overflow-hidden" id="tw-text"><span class="animate-blink" aria-hidden="true">|</span></p>
 
 <script>
   import { initTypewriter } from '../assets/scripts/typewriter';
   import { typewriterMessages } from '../data/aboutme';
 
-  // Runs once: transition:persist keeps this node (and this script's
-  // running timers) alive across navigations, so the message loop
-  // never restarts or leaks timers when moving between pages.
   initTypewriter('tw-text', typewriterMessages);
 </script>

@@ -1,6 +1,5 @@
 import type { LinkCategory } from '../types/link';
 
-// Edit freely — add/remove categories and items as you like.
 export const linkCategories: LinkCategory[] = [
   {
     name: 'my stuff',
@@ -13,7 +12,6 @@ export const linkCategories: LinkCategory[] = [
   {
     name: 'Other stuff I like',
     items: [
-      // e.g. { label: 'Some YouTube channel', href: 'https://youtube.com/...', description: 'Why I like it.' },
       { label: 'Gran Maris', href: 'https://discord.gg/Q7zdDHNGGK', description: 'Random Discord server where got friends there 24/7.' },
       
     ],

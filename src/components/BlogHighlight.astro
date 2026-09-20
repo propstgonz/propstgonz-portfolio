@@ -1,11 +1,4 @@
 ---
-// No server-side fetch here on purpose: this used to `await getPosts()`
-// during SSR, which meant a slow or unreachable blog backend blocked
-// the *entire home page* from rendering — on every visit, and on every
-// client-side navigation back to "/". The list of latest posts is now
-// fetched client-side from /api/latest-posts after the page has already
-// painted, so the homepage is never at the mercy of a third-party
-// service's uptime or latency. See docs/ARCHITECTURE.md.
 ---
 <a href="/blog" class="btn-cta group relative overflow-hidden">
   <div class="min-w-0 relative z-10">
@@ -43,13 +36,8 @@
         fallback.classList.add('hidden');
       }
     } catch {
-      // Leave the static fallback text in place — never break the
-      // homepage over this.
     }
   }
 
-  // astro:page-load fires on the initial page load too (since Astro
-  // 5.4.2), so this listener alone covers both first load and every
-  // subsequent navigation.
   document.addEventListener('astro:page-load', loadLatestPosts);
 </script>

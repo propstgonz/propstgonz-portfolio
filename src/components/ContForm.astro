@@ -40,10 +40,6 @@
 </form>
 
 <script>
-  // Re-queries and re-binds on every navigation (see ClickCounter.astro
-  // for why): otherwise the submit handler stays attached to a detached
-  // copy of the form after navigating away and back, and the visible
-  // form falls through to a real (broken) browser submit.
   function setup() {
     const form = document.getElementById('contact-form');
     const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement | null;
@@ -81,9 +77,5 @@
     });
   }
 
-  // astro:page-load fires on the initial page load too (since Astro
-  // 5.4.2) — calling setup() separately as well as listening for this
-  // event double-bound the submit handler on first load, which meant
-  // the very first message on a fresh page load could get sent twice.
   document.addEventListener('astro:page-load', setup);
 </script>

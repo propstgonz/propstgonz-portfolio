@@ -1,10 +1,5 @@
 import type { FaqEntry } from '../types/faq';
 
-// Ported from the original site's FAQ (its actual personality, not a
-// generic rewrite). Answers may contain trusted, first-party HTML
-// (links, a live IP span) — this is authored content, not the
-// untrusted external blog markdown, so it's rendered as raw HTML in
-// <Faq />.
 export const faq: FaqEntry[] = [
   {
     q: 'What is this site about?',

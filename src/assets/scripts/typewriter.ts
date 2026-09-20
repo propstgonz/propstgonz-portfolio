@@ -1,4 +1,3 @@
-// Vanilla typewriter effect. No external dependencies.
 
 export function initTypewriter(
   elementId: string,

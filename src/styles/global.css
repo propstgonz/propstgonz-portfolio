@@ -54,12 +54,10 @@
 }
 
 @layer components {
-  /* ── Cards ─────────────────────────────────────────────────────────── */
   .card {
     @apply bg-s2 border border-b1 rounded-xl transition-all duration-200;
   }
 
-  /* ── Section headers: "[ bar ] title ────" ────────────────────────── */
   .sec-hd {
     @apply flex items-center gap-2.5;
   }
@@ -73,7 +71,6 @@
     @apply h-px flex-1 bg-b1;
   }
 
-  /* ── Tags / pills ──────────────────────────────────────────────────── */
   .tag {
     @apply inline-flex items-center font-mono text-[11px] px-2.5 py-1 rounded-full border border-b1 text-text2 transition-colors;
   }
@@ -83,7 +80,6 @@
   .tag-purple { @apply text-purple border-purple/40; }
   .tag-red { @apply text-red border-red/40; }
 
-  /* ── Buttons ───────────────────────────────────────────────────────── */
   .btn-primary {
     @apply relative w-full inline-flex items-center justify-center gap-2 font-mono text-sm font-bold
       text-bg py-3 rounded-xl cursor-pointer overflow-hidden
@@ -118,7 +114,6 @@
       hover:border-amber-d hover:bg-amber/10 hover:shadow-[0_6px_16px_-4px_rgba(217,144,88,0.4)];
   }
 
-  /* ── Blog post prose ───────────────────────────────────────────────── */
   .prose-post {
     @apply text-[14.5px] leading-[1.75] text-text2;
   }

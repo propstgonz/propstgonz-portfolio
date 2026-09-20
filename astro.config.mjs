@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   output: 'server',
+  security: { checkOrigin: false },
   adapter: node({
     mode: 'standalone',
   }),

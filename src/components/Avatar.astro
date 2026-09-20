@@ -26,9 +26,6 @@ const { name } = Astro.props;
 </div>
 
 <script>
-  // Runs once: this component is transition:persist'd, so it survives
-  // client-side navigations instead of remounting (which used to reset
-  // the avatar back to the static placeholder on every page change).
   const video = document.getElementById('avatar-video') as HTMLVideoElement | null;
   if (video) {
     setTimeout(() => {

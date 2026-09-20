@@ -24,8 +24,6 @@ const { activePage = '' } = Astro.props;
       </div>
     </div>
 
-    <!-- Not persisted on purpose: needs to re-render per page so the
-         active nav item stays in sync with the current route. -->
     <Nav activePage={activePage} />
   </div>
 </header>

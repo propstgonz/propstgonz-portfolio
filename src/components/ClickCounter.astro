@@ -12,11 +12,6 @@
 </div>
 
 <script>
-  // Backed by /api/counter (a JSON file on disk server-side) instead of
-  // localStorage — one shared count for every visitor instead of a
-  // number that resets per browser. The initial "0" in the markup is a
-  // static fallback painted immediately; the real count is fetched
-  // client-side right after, same pattern as BlogHighlight's teaser.
   const API_URL = '/api/counter';
 
   function fmt(n: number) {
@@ -36,17 +31,6 @@
 
   async function incrementCount(): Promise<number | null> {
     try {
-      // Astro's built-in CSRF protection (security.checkOrigin, on by
-      // default) treats any POST without an explicit non-form
-      // Content-Type as a <form> submission and requires its Origin
-      // header to match the request's own origin exactly. Behind
-      // Traefik that check fails even for real same-origin browser
-      // requests, because @astrojs/node doesn't read X-Forwarded-Proto:
-      // it sees the request arrive as plain http, so its own computed
-      // origin never matches the https:// Origin the browser sends.
-      // Sending JSON instead of a form-shaped body sidesteps that
-      // heuristic entirely, without weakening CSRF protection anywhere
-      // else on the site.
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,13 +44,6 @@
     }
   }
 
-  // A single Server-Sent Events connection, opened once and kept alive
-  // across client-side navigations (this module only ever runs its
-  // top-level code once, even though setup() re-runs on every
-  // astro:page-load) — every open tab hears every visitor's click as it
-  // happens, not just your own. Looks up #counter-num fresh on every
-  // message instead of capturing it, since View Transitions replace that
-  // node on navigation.
   let liveSource: EventSource | null = null;
 
   function connectLive() {
@@ -80,7 +57,6 @@
         const numEl = document.getElementById('counter-num');
         if (numEl) setDisplay(numEl, data.count, true);
       } catch {
-        // Ignore malformed payloads (e.g. a heartbeat comment line).
       }
     };
   }
@@ -89,7 +65,7 @@
     numEl.textContent = fmt(n);
     if (animate) {
       numEl.classList.remove('bump');
-      void numEl.offsetWidth; // reflow to restart the animation
+      void numEl.offsetWidth;
       numEl.classList.add('bump');
     }
   }
@@ -107,10 +83,6 @@
   async function handleClick(card: HTMLElement, numEl: HTMLElement, e: MouseEvent | KeyboardEvent) {
     if (e instanceof KeyboardEvent && e.key !== 'Enter' && e.key !== ' ') return;
 
-    // Waits for the server-confirmed count instead of guessing +1
-    // locally — an optimistic bump here could drift from the real
-    // shared count, or double up if the request is still in flight
-    // when the user clicks again.
     const next = await incrementCount();
     if (next === null) return;
 
@@ -122,10 +94,6 @@
     }
   }
 
-  // Re-queries the DOM and re-binds on every navigation instead of
-  // capturing elements once — with view transitions the whole widget is
-  // a fresh node each time. astro:page-load fires on the initial page
-  // load too (since Astro 5.4.2), so this listener alone is enough.
   function setup() {
     const card = document.getElementById('click-counter');
     const numEl = document.getElementById('counter-num');

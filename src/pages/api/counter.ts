@@ -3,11 +3,6 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { counterEvents } from '../../lib/counterEvents';
 
-// Self-contained counter: persists to a JSON file instead of depending
-// on an external counter microservice, so the count is one shared
-// number for every visitor. In production the path is a bind-mounted
-// host directory (see docker-compose.yml's `volumes:` and COUNTER_FILE)
-// so the count survives container rebuilds/redeploys.
 const DATA_PATH = process.env.COUNTER_FILE ?? '/tmp/propstgonz-counter.json';
 
 async function readCount(): Promise<number> {
@@ -25,10 +20,6 @@ async function writeCount(count: number): Promise<void> {
   await writeFile(DATA_PATH, JSON.stringify({ count }), 'utf-8');
 }
 
-// Serializes the read-modify-write cycle so two clicks arriving close
-// together can't both read the same starting count and silently lose
-// one of the increments. Only guards against races within this one
-// Node process, which is all this deployment ever runs.
 let lock: Promise<unknown> = Promise.resolve();
 
 function withLock<T>(fn: () => Promise<T>): Promise<T> {
@@ -50,8 +41,6 @@ export const POST: APIRoute = async () => {
     await writeCount(next);
     return next;
   });
-  // Notifies every open /api/counter/stream connection — see that route
-  // for the other half of this.
   counterEvents.emit('count', count);
   return new Response(JSON.stringify({ count }), {
     headers: { 'Content-Type': 'application/json' },

@@ -1,27 +1,23 @@
 import type { APIContext } from 'astro';
 
-// Resolves the visitor's public IP from proxy headers — Traefik sets
-// X-Forwarded-For by default. Also checks X-Real-IP and CF-Connecting-IP
-// (in case Cloudflare or another edge proxy sits in front of Traefik),
-// falling back to the raw socket address as a last resort. Shared by
-// /api/whoami and /api/track so the two routes can't drift apart on how
-// they identify a visitor.
+const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/;
+const IPV6 = /^[0-9a-f:]+$/i;
+
+function isValidIp(value: string): boolean {
+  if (IPV4.test(value)) return value.split('.').every((o) => Number(o) <= 255);
+  return value.includes(':') && IPV6.test(value);
+}
+
 export function resolveClientIp({ request, clientAddress }: Pick<APIContext, 'request' | 'clientAddress'>): string {
-  const candidates = [
-    request.headers.get('cf-connecting-ip'),
-    request.headers.get('x-real-ip'),
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
-  ];
+  const chain = request.headers.get('x-forwarded-for')?.split(',') ?? [];
+  const forwarded = chain.at(-1)?.trim();
 
-  let ip = candidates.find((v): v is string => !!v);
+  if (forwarded && isValidIp(forwarded)) return forwarded;
 
-  if (!ip) {
-    try {
-      ip = clientAddress;
-    } catch {
-      // clientAddress throws when not available (e.g. static context)
-    }
+  try {
+    if (clientAddress && isValidIp(clientAddress)) return clientAddress;
+  } catch {
   }
 
-  return ip ?? 'unknown';
+  return 'unknown';
 }
