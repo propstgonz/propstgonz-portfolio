@@ -413,6 +413,44 @@ seeing the same banner instead of it vanishing with the old DOM.
 `Nav.astro` is intentionally *not* persisted, since it needs to re-render
 per page to highlight the correct active link.
 
+## Frontend design system
+
+All visual decisions live in `src/styles/global.css`; components should use
+its tokens and classes rather than arbitrary values.
+
+- **Tokens (`@theme`).** A fixed type scale (`text-xs` 12px is the floor,
+  `text-sm` 13px for UI chrome, `text-base` 15px for long prose), the
+  colour palette, `--container-page` (`max-w-page`, the single page width
+  every page and the header/footer/banner share) and three shadow tokens
+  instead of repeated `rgba()` literals. `text3` was lightened to `#8b94a3`
+  so it passes WCAG AA at small sizes.
+- **Fonts.** No webfonts. Monospace is the identity and is used for all UI
+  chrome and short texts; system sans is reserved for long-form blog prose
+  (`.prose-post`), where mono gets tiring.
+- **Component classes.** `.card`, `.btn-primary` / `.btn-secondary`,
+  `.btn-nav`, `.btn-cta` + `.btn-cta-arrow`, `.btn-icon`, `.tag-*`, `.field`.
+  Interactive states are colour/border changes only; no hover "lifts".
+- **Section headers.** `SectionHeader.astro` renders the bar + title + rule
+  pattern. It is an `h2` by default and `as="h1"` for the page title on
+  inner pages; the header's site name is the `h1` only on the homepage, so
+  every page has exactly one.
+- **Accessibility baseline.** One global `:focus-visible` outline, a skip
+  link to `#main` (every page's `<main>` carries that id), and a
+  `prefers-reduced-motion` block that disables animations and view
+  transitions; the typewriter then shows a static line and the avatar video
+  never loads.
+- **Shared consent constants.** `src/lib/consent.ts` exports the
+  `localStorage` key and the `consent-changed` event name used by
+  `ConsentBanner.astro` and `whoami.ts`, so the two can't drift apart.
+- **Build date.** The footer's "last rebuild" used to evaluate `new Date()`
+  on every SSR request, so it always showed today. It is now injected once
+  at build time through Vite `define` (`import.meta.env.BUILD_DATE` in
+  `astro.config.mjs`).
+- **Assets.** Images in `public/` are served as WebP/PNG/JPG sized for their
+  display (the 404 animation went from a 2.9 MB GIF to an animated WebP,
+  the 73 KB SVG-wrapped favicon to a 3 KB PNG). `og:image` and canonical
+  URLs are absolute, built from `site` in `astro.config.mjs`.
+
 ## Environment variables
 
 See `.env.example` for the full list. Summary:

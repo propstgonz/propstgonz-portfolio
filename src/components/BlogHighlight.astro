@@ -1,20 +1,17 @@
 ---
+import SectionHeader from './SectionHeader.astro';
 ---
-<a href="/blog" class="btn-cta group relative overflow-hidden">
-  <div class="min-w-0 relative z-10">
-    <div class="sec-hd mb-2">
-      <span class="sec-hd-bar"></span>
-      <span class="sec-hd-title">blog</span>
-    </div>
-    <ul id="blog-highlight-list" class="hidden flex-col gap-1 font-mono text-[13px] text-text2">
+<a href="/blog" class="btn-cta group">
+  <div class="min-w-0">
+    <SectionHeader title="blog" rule={false} class="mb-2" />
+    <ul id="blog-highlight-list" class="hidden flex-col gap-1 font-mono text-sm text-text2">
     </ul>
-    <p id="blog-highlight-fallback" class="text-[13px] text-text2 font-mono">
-      Thoughts, notes and things I broke — read the latest →
+    <p id="blog-highlight-fallback" class="text-sm text-text2 font-mono">
+      Thoughts, notes and things I broke — read the latest
     </p>
-    <p class="text-[11px] text-text3 font-mono mt-2">Posts written in Spanish</p>
+    <p class="text-xs text-text3 font-mono mt-2">Posts written in Spanish</p>
   </div>
-  <span class="text-text3 text-xl group-hover:text-cyan group-hover:translate-x-1 transition-all shrink-0 relative z-10" aria-hidden="true">→</span>
-  <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-cyan/0 via-cyan/5 to-cyan/0"></div>
+  <span class="btn-cta-arrow" aria-hidden="true">→</span>
 </a>
 
 <script>
@@ -28,9 +25,14 @@
       const data = (await res.json()) as { posts: { title: string; slug: string }[] };
 
       if (data.posts.length > 0) {
-        list.innerHTML = data.posts
-          .map((p) => `<li class="truncate capitalize">→ ${p.title}</li>`)
-          .join('');
+        list.replaceChildren(
+          ...data.posts.map((p) => {
+            const li = document.createElement('li');
+            li.className = 'truncate capitalize';
+            li.textContent = `→ ${p.title}`;
+            return li;
+          }),
+        );
         list.classList.remove('hidden');
         list.classList.add('flex');
         fallback.classList.add('hidden');

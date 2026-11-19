@@ -1,21 +1,20 @@
 ---
 import { faq } from '../data/faq';
 ---
-<div class="flex flex-col gap-2.5">
+<div class="flex flex-col gap-3">
   {faq.map(entry => (
     <details class="card p-4 group open:border-amber-d/50">
-      <summary class="font-mono text-[13px] text-text cursor-pointer list-none flex items-center justify-between gap-3">
+      <summary class="font-mono text-sm text-text cursor-pointer list-none flex items-center justify-between gap-3">
         <span>{entry.q}</span>
-        <span class="w-6 h-6 rounded-full border border-b1 flex items-center justify-center text-text3 group-open:rotate-45 group-open:text-amber group-open:border-amber-d/50 transition-all shrink-0">+</span>
+        <span aria-hidden="true" class="w-6 h-6 rounded-full border border-b1 flex items-center justify-center text-text3 group-open:rotate-45 group-open:text-amber group-open:border-amber-d/50 transition-[color,transform,border-color] shrink-0">+</span>
       </summary>
-      <p class="text-[13px] text-text2 mt-3 leading-relaxed font-mono [&_a]:text-cyan [&_a]:underline [&_a]:underline-offset-2" set:html={entry.a} />
+      <p class="text-sm text-text2 mt-3 leading-relaxed font-mono max-w-[68ch] [&_a]:text-cyan [&_a]:underline [&_a]:underline-offset-2" set:html={entry.a} />
     </details>
   ))}
 </div>
 
 <script>
-  import { initIpDisplay } from '../assets/scripts/whoami';
+  import { bindIpDisplay } from '../assets/scripts/whoami';
 
-  document.addEventListener('astro:page-load', () => initIpDisplay('client-ip'));
-  window.addEventListener('propstgonz:consent-changed', () => initIpDisplay('client-ip'));
+  bindIpDisplay('client-ip');
 </script>

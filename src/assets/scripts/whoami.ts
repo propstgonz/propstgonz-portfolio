@@ -1,4 +1,4 @@
-const CONSENT_KEY = 'propstgonz-consent';
+import { CONSENT_KEY, CONSENT_EVENT } from '../../lib/consent';
 
 export async function initIpDisplay(elementId: string) {
   const el = document.getElementById(elementId);
@@ -16,4 +16,9 @@ export async function initIpDisplay(elementId: string) {
   } catch {
     el.textContent = 'unknown';
   }
+}
+
+export function bindIpDisplay(elementId: string) {
+  document.addEventListener('astro:page-load', () => initIpDisplay(elementId));
+  window.addEventListener(CONSENT_EVENT, () => initIpDisplay(elementId));
 }

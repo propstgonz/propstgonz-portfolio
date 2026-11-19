@@ -6,7 +6,6 @@
 </div>
 
 <script>
-  import { initIpDisplay } from '../assets/scripts/whoami';
-  document.addEventListener('astro:page-load', () => initIpDisplay('ip-value'));
-  window.addEventListener('propstgonz:consent-changed', () => initIpDisplay('ip-value'));
+  import { bindIpDisplay } from '../assets/scripts/whoami';
+  bindIpDisplay('ip-value');
 </script>

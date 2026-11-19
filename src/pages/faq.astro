@@ -3,16 +3,13 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Faq from '../components/Faq.astro';
+import SectionHeader from '../components/SectionHeader.astro';
 ---
 <Layout title="faq — propstgonz" description="Frequently asked questions.">
   <Header activePage="/faq" />
 
-  <main class="max-w-[720px] mx-auto px-5 pb-16">
-    <div class="sec-hd mb-5">
-      <span class="sec-hd-bar"></span>
-      <span class="sec-hd-title">faq</span>
-      <span class="sec-hd-rule"></span>
-    </div>
+  <main id="main" class="max-w-page mx-auto px-5 pb-16">
+    <SectionHeader title="faq" as="h1" class="mb-5" />
     <Faq />
   </main>
 

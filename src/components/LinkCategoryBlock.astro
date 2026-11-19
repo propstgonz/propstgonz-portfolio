@@ -1,5 +1,6 @@
 ---
 import type { LinkCategory } from '../types/link';
+import SectionHeader from './SectionHeader.astro';
 
 interface Props {
   category: LinkCategory;
@@ -9,12 +10,8 @@ const { category } = Astro.props;
 ---
 {category.items.length > 0 && (
   <section>
-    <div class="sec-hd mb-4">
-      <span class="sec-hd-bar"></span>
-      <span class="sec-hd-title">{category.name}</span>
-      <span class="sec-hd-rule"></span>
-    </div>
-    <div class="flex flex-col gap-2.5">
+    <SectionHeader title={category.name} class="mb-4" />
+    <div class="flex flex-col gap-3">
       {category.items.map(item => (
         <a
           href={item.href}
@@ -25,10 +22,10 @@ const { category } = Astro.props;
           <div class="min-w-0">
             <p class="font-mono text-sm text-text group-hover:text-amber transition-colors">{item.label}</p>
             {item.description && (
-              <p class="text-[12px] text-text3 font-mono mt-1 truncate">{item.description}</p>
+              <p class="text-xs text-text3 font-mono mt-1 line-clamp-2">{item.description}</p>
             )}
           </div>
-          <span class="text-text3 text-lg group-hover:text-amber group-hover:translate-x-1 transition-all shrink-0" aria-hidden="true">↗</span>
+          <span class="btn-cta-arrow" aria-hidden="true">↗</span>
         </a>
       ))}
     </div>
