@@ -12,6 +12,7 @@ import ContForm from '../components/ContForm.astro';
 import Philosophy from '../components/Philosophy.astro';
 import BlogHighlight from '../components/BlogHighlight.astro';
 import RigsHighlight from '../components/RigsHighlight.astro';
+import ProjectsHighlight from '../components/ProjectsHighlight.astro';
 ---
 <Layout title="propstgonz">
   <Header activePage="/" home />
@@ -26,6 +27,7 @@ import RigsHighlight from '../components/RigsHighlight.astro';
     </aside>
 
     <main id="main" class="flex flex-col gap-6 min-w-0">
+      <ProjectsHighlight />
       <BlogHighlight />
       <RigsHighlight />
       <ContForm />
