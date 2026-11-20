@@ -1,17 +1,14 @@
 ---
 import { logs, LOGS_VISIBLE } from '../data/logs';
+import SectionHeader from './SectionHeader.astro';
 
 const visible = logs.slice(0, LOGS_VISIBLE);
 const rest = logs.slice(LOGS_VISIBLE);
 ---
 <div class="card p-5">
-  <div class="sec-hd mb-3">
-    <span class="sec-hd-bar"></span>
-    <span class="sec-hd-title">changelog</span>
-    <span class="sec-hd-rule"></span>
-  </div>
+  <SectionHeader title="changelog" class="mb-3" />
 
-  <ul class="flex flex-col gap-2 font-mono text-[13px]" id="logs-visible">
+  <ul class="flex flex-col gap-2 font-mono text-sm" id="logs-visible">
     {visible.map(log => (
       <li class="flex gap-3">
         <span class="text-text3 shrink-0">{log.date}</span>
@@ -22,7 +19,7 @@ const rest = logs.slice(LOGS_VISIBLE);
 
   {rest.length > 0 && (
     <>
-      <ul class="flex-col gap-2 font-mono text-[13px] mt-2 hidden" id="logs-rest">
+      <ul class="flex-col gap-2 font-mono text-sm mt-2 hidden" id="logs-rest">
         {rest.map(log => (
           <li class="flex gap-3">
             <span class="text-text3 shrink-0">{log.date}</span>
@@ -32,6 +29,10 @@ const rest = logs.slice(LOGS_VISIBLE);
       </ul>
       <button
         id="logs-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="logs-rest"
+        data-count={rest.length}
         class="text-xs text-text3 hover:text-amber mt-3 font-mono transition-colors"
       >
         show {rest.length} more ↓
@@ -50,7 +51,8 @@ const rest = logs.slice(LOGS_VISIBLE);
       const isHidden = restEl.classList.contains('hidden');
       restEl.classList.toggle('hidden');
       restEl.classList.toggle('flex');
-      btn.textContent = isHidden ? 'show less ↑' : `show more ↓`;
+      btn.setAttribute('aria-expanded', String(isHidden));
+      btn.textContent = isHidden ? 'show less ↑' : `show ${btn.dataset.count} more ↓`;
     });
   }
 

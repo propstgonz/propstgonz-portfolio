@@ -9,6 +9,11 @@ export function initTypewriter(
   const el = document.getElementById(elementId);
   if (!el || messages.length === 0) return;
 
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.textContent = messages[0];
+    return;
+  }
+
   let mi = 0;
   let ci = 0;
   let timer: ReturnType<typeof setTimeout> | null = null;
@@ -35,6 +40,5 @@ export function initTypewriter(
     }
   }
 
-  if (timer) clearTimeout(timer);
   timer = setTimeout(type, 800);
 }

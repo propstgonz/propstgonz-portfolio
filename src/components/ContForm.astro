@@ -1,43 +1,38 @@
 ---
+import SectionHeader from './SectionHeader.astro';
 ---
-<div class="sec-hd mb-3">
-  <span class="sec-hd-bar"></span>
-  <span class="sec-hd-title">reach me</span>
-  <span class="sec-hd-rule"></span>
-</div>
+<section>
+  <SectionHeader title="reach me" class="mb-3" />
 
-<form id="contact-form" class="card p-5 flex flex-col gap-3 font-mono" enctype="multipart/form-data">
-  <input
-    name="name"
-    type="text"
-    placeholder="name"
-    required
-    class="w-full p-2.5 rounded-lg border border-b1 bg-bg text-sm text-text placeholder-text3 focus:outline-none focus:ring-1 focus:ring-amber"
-  />
-  <input
-    name="email"
-    type="email"
-    placeholder="email"
-    required
-    class="w-full p-2.5 rounded-lg border border-b1 bg-bg text-sm text-text placeholder-text3 focus:outline-none focus:ring-1 focus:ring-amber"
-  />
-  <textarea
-    name="message"
-    placeholder="message"
-    required
-    class="w-full p-2.5 rounded-lg border border-b1 bg-bg text-sm text-text placeholder-text3 focus:outline-none focus:ring-1 focus:ring-amber h-28 resize-none"
-  ></textarea>
-  <input
-    name="file"
-    type="file"
-    accept="image/*,.pdf,.zip,.rar,.doc,.docx,.txt"
-    class="w-full p-2.5 rounded-lg border border-b1 bg-bg text-xs text-text2 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-b1 file:text-text2 file:text-xs file:font-mono file:cursor-pointer hover:file:bg-b2"
-  />
-  <button type="submit" id="contact-submit" class="btn-primary">
-    send
-  </button>
-  <p id="contact-status" class="text-xs text-text3 text-center min-h-[16px]"></p>
-</form>
+  <form id="contact-form" class="card p-5 flex flex-col gap-3 font-mono" enctype="multipart/form-data">
+    <div>
+      <label for="cf-name" class="block text-xs text-text2 mb-1">name</label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required class="field" />
+    </div>
+    <div>
+      <label for="cf-email" class="block text-xs text-text2 mb-1">email</label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required class="field" />
+    </div>
+    <div>
+      <label for="cf-message" class="block text-xs text-text2 mb-1">message</label>
+      <textarea id="cf-message" name="message" required class="field h-28 min-h-24 resize-y"></textarea>
+    </div>
+    <div>
+      <label for="cf-file" class="block text-xs text-text2 mb-1">attachment (optional, max 25MB)</label>
+      <input
+        id="cf-file"
+        name="file"
+        type="file"
+        accept="image/*,.pdf,.zip,.rar,.doc,.docx,.txt"
+        class="field text-xs text-text2 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-b1 file:text-text2 file:text-xs file:font-mono file:cursor-pointer"
+      />
+    </div>
+    <button type="submit" id="contact-submit" class="btn-primary w-full">
+      send
+    </button>
+    <p id="contact-status" role="status" aria-live="polite" class="text-xs text-text3 text-center min-h-4"></p>
+  </form>
+</section>
 
 <script>
   function setup() {

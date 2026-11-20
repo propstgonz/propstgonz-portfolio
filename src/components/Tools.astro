@@ -1,15 +1,12 @@
 ---
 import { Image } from 'astro:assets';
 import { tools } from '../data/tools';
+import SectionHeader from './SectionHeader.astro';
 ---
-<div class="card p-6">
-  <div class="sec-hd mb-5">
-    <span class="sec-hd-bar"></span>
-    <span class="sec-hd-title">stack</span>
-    <span class="sec-hd-rule"></span>
-  </div>
+<div class="card p-5 sm:p-6">
+  <SectionHeader title="stack" class="mb-5" />
 
-  <ul class="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono">
+  <ul class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 font-mono">
     {tools.map(tool => {
       const El = tool.href ? 'a' : 'div';
       return (
@@ -18,19 +15,18 @@ import { tools } from '../data/tools';
             href={tool.href}
             target={tool.href ? '_blank' : undefined}
             rel={tool.href ? 'noopener noreferrer' : undefined}
-            class="group flex items-center gap-3 p-3 rounded-lg border border-b1 bg-bg/40
-                   transition-all duration-200 hover:border-amber-d hover:bg-amber/5
-                   hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-6px_rgba(217,144,88,0.35)]"
+            class="group h-full flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-lg border border-b1 bg-bg/40
+                   transition-colors hover:border-amber-d hover:bg-amber/5"
           >
             <Image
               src={tool.icon}
-              alt={`${tool.name} logo`}
+              alt=""
               width={32}
               height={32}
-              class="w-8 h-8 object-contain shrink-0 grayscale-[20%] group-hover:grayscale-0 transition-all"
+              class="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 grayscale-[20%] group-hover:grayscale-0 transition-[filter]"
               loading="lazy"
             />
-            <span class="text-[13px] text-text2 group-hover:text-text transition-colors truncate">
+            <span class="text-sm text-text2 group-hover:text-text transition-colors min-w-0 leading-tight break-normal">
               {tool.name}
             </span>
           </El>

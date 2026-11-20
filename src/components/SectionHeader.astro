@@ -1,0 +1,16 @@
+---
+interface Props {
+  title: string;
+  as?: 'h1' | 'h2' | 'h3';
+  rule?: boolean;
+  class?: string;
+}
+
+const { title, as: Tag = 'h2', rule = true, class: className } = Astro.props;
+---
+<div class:list={['sec-hd', className]}>
+  <span class="sec-hd-bar" aria-hidden="true"></span>
+  <Tag class="sec-hd-title">{title}</Tag>
+  {rule && <span class="sec-hd-rule" aria-hidden="true"></span>}
+  <slot />
+</div>

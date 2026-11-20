@@ -7,16 +7,18 @@ const { activePage } = Astro.props;
 
 const links = [
   { href: '/', label: 'home' },
+  { href: '/projects', label: 'projects' },
   { href: '/rigs', label: 'rigs' },
   { href: '/blog', label: 'blog' },
   { href: '/links', label: 'links' },
   { href: '/faq', label: 'faq' },
 ];
 ---
-<nav class="flex flex-wrap items-center gap-1 font-mono text-[13px]">
+<nav aria-label="Main" class="grid grid-cols-3 sm:flex sm:flex-wrap sm:items-center gap-1 border-t border-b1 pt-3 font-mono text-sm">
   {links.map(link => (
     <a
       href={link.href}
+      aria-current={activePage === link.href ? 'page' : undefined}
       class:list={[
         'btn-nav',
         activePage === link.href ? 'btn-nav-active' : 'btn-nav-idle',

@@ -1,15 +1,14 @@
 ---
 ---
-<div
+<button
   id="click-counter"
-  class="card py-5 px-6 text-center cursor-pointer select-none relative overflow-hidden hover:border-amber-d hover:bg-amber/5 active:scale-[0.98] transition-all"
-  role="button"
-  tabindex="0"
-  aria-label="Click to add to the counter"
+  type="button"
+  class="card w-full py-5 px-6 text-center cursor-pointer select-none relative overflow-hidden hover:border-amber-d hover:bg-amber/5 active:scale-[0.99] transition-colors"
+  aria-label="Add one to the global click counter"
 >
-  <p class="text-[11px] uppercase tracking-wider text-text3 mb-1 font-mono">your clicks</p>
-  <p id="counter-num" class="text-4xl font-bold text-amber font-mono leading-none tracking-tight">0</p>
-</div>
+  <span class="block text-xs uppercase tracking-wider text-text3 mb-1 font-mono">total clicks</span>
+  <span id="counter-num" class="block text-4xl font-bold text-amber font-mono leading-none tracking-tight">0</span>
+</button>
 
 <script>
   const API_URL = '/api/counter';
@@ -74,21 +73,20 @@
     const f = document.createElement('span');
     f.textContent = '+1';
     f.className = 'float-num';
+    f.setAttribute('aria-hidden', 'true');
     f.style.left = `${x}px`;
     f.style.top = `${y}px`;
     card.appendChild(f);
     f.addEventListener('animationend', () => f.remove());
   }
 
-  async function handleClick(card: HTMLElement, numEl: HTMLElement, e: MouseEvent | KeyboardEvent) {
-    if (e instanceof KeyboardEvent && e.key !== 'Enter' && e.key !== ' ') return;
-
+  async function handleClick(card: HTMLElement, numEl: HTMLElement, e: MouseEvent) {
     const next = await incrementCount();
     if (next === null) return;
 
     setDisplay(numEl, next, true);
 
-    if (e instanceof MouseEvent) {
+    if (e.detail > 0) {
       const rect = card.getBoundingClientRect();
       spawnFloat(card, e.clientX - rect.left - 10, e.clientY - rect.top - 20);
     }
@@ -105,9 +103,7 @@
 
     connectLive();
 
-    const onClick = (e: MouseEvent | KeyboardEvent) => handleClick(card, numEl, e);
-    card.addEventListener('click', onClick);
-    card.addEventListener('keydown', onClick);
+    card.addEventListener('click', (e) => handleClick(card, numEl, e));
   }
 
   document.addEventListener('astro:page-load', setup);
@@ -121,20 +117,5 @@
   @keyframes bump {
     0% { transform: scale(1.2); }
     100% { transform: scale(1); }
-  }
-
-  :global(.float-num) {
-    position: absolute;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--color-amber);
-    pointer-events: none;
-    animation: floatUp 0.7s ease forwards;
-    font-family: var(--font-mono);
-  }
-
-  @keyframes floatUp {
-    0% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-50px); }
   }
 </style>

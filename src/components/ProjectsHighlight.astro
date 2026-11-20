@@ -1,0 +1,13 @@
+---
+import { projects } from '../data/projects';
+import SectionHeader from './SectionHeader.astro';
+---
+<a href="/projects" class="btn-cta group">
+  <div class="min-w-0">
+    <SectionHeader title="projects" rule={false} class="mb-2" />
+    <p class="text-sm text-text2 font-mono truncate">
+      {projects.map(p => p.name).join(' · ')}
+    </p>
+  </div>
+  <span class="btn-cta-arrow" aria-hidden="true">→</span>
+</a>

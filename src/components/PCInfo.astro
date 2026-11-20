@@ -1,18 +1,8 @@
 ---
-interface Spec {
-  label: string;
-  value: string;
-}
+import type { Computer } from '../types/computer';
 
 interface Props {
-  pc: {
-    id:    string;
-    name:  string;
-    os:    string;
-    role:  string;
-    color: string;
-    specs: Spec[];
-  };
+  pc: Computer;
 }
 
 const { pc } = Astro.props;
@@ -64,12 +54,12 @@ const getLogo = (os: string) => {
 const logo = getLogo(pc.os);
 ---
 
-<div class="bg-s2 border border-b1 p-6 rounded-2xl flex gap-6 font-mono w-full transition-all hover:border-b2">
-  <div class="flex-shrink-0 text-sm hidden sm:block leading-tight select-none" style={`color: ${pc.color}`}>
+<div class="card p-4 sm:p-6 flex gap-6 font-mono w-full">
+  <div class="flex-shrink-0 text-sm hidden sm:block leading-tight select-none" aria-hidden="true" style={`color: ${pc.color}`}>
     <pre>{logo}</pre>
   </div>
   <div class="flex-1 min-w-0 flex flex-col justify-center">
-    <h3 class="text-lg font-bold mb-3 border-b border-b1 pb-1 flex items-center justify-between" style={`color: ${pc.color}`}>
+    <h3 class="text-lg font-bold mb-3 border-b border-b1 pb-1 flex flex-wrap items-center justify-between gap-x-3" style={`color: ${pc.color}`}>
       <span>{pc.name}</span>
       <span class="text-xs font-normal text-text3">[ {pc.role} ]</span>
     </h3>

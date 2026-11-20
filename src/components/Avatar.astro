@@ -8,15 +8,18 @@ const { name } = Astro.props;
 <div class="rounded-full border-2 border-amber-d/60 overflow-hidden w-16 h-16 shrink-0 relative">
   <img
     id="avatar"
-    src="/propstplaceholder.png"
+    src="/propstplaceholder.webp"
     alt={`${name} avatar`}
+    width="128"
+    height="128"
     class="w-full h-full object-cover absolute inset-0"
     fetchpriority="high"
   />
   <video
     id="avatar-video"
     class="w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-500"
-    autoplay
+    aria-hidden="true"
+    preload="none"
     loop
     muted
     playsinline
@@ -27,9 +30,11 @@ const { name } = Astro.props;
 
 <script>
   const video = document.getElementById('avatar-video') as HTMLVideoElement | null;
-  if (video) {
-    setTimeout(() => {
-      video.classList.remove('opacity-0');
-    }, 2500);
+  const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  const skip = window.matchMedia('(prefers-reduced-motion: reduce)').matches || conn?.saveData;
+
+  if (video && !skip) {
+    video.addEventListener('playing', () => video.classList.remove('opacity-0'), { once: true });
+    setTimeout(() => video.play().catch(() => {}), 2500);
   }
 </script>

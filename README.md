@@ -9,7 +9,8 @@ external content source.
 
 | Route | What it is |
 |---|---|
-| `/` | Home — about me, socials, click counter, IP widget, blog highlight, contact form, philosophy, changelog, stack, rigs teaser |
+| `/` | Home — about me, socials, click counter, IP widget, projects/blog/rigs teasers, contact form, philosophy, changelog, stack |
+| `/projects` | Things I built, one card per project from `src/data/projects.ts` (add a project = add an entry there) |
 | `/rigs` | Rigs (my machines, original specs verbatim from the pre-rewrite site), full stack, FAQ teaser |
 | `/faq` | Frequently asked questions |
 | `/links` | Sites I like, grouped by category |
@@ -45,7 +46,7 @@ docs/
 ```
 
 `src/data/` and `src/types/` are split by domain (`aboutme`, `tags`,
-`socials`, `tools`, `computers`, `logs`, `faq`, `links`) instead of one
+`socials`, `tools`, `computers`, `logs`, `faq`, `links`, `projects`) instead of one
 big file — that's a deliberate change from the previous version of this
 site, which had all content mixed into a handful of files and became hard
 to maintain.
@@ -63,7 +64,7 @@ island, since there's no UI framework in this project. Notable ones:
   re-initialize on every `astro:page-load` event so they keep working
   correctly across client-side navigations (View Transitions replace DOM
   nodes on every route change; see architecture doc for details)
-- `BlogHighlight.astro`, `RigsHighlight.astro`, `Philosophy.astro`,
+- `ProjectsHighlight.astro`, `BlogHighlight.astro`, `RigsHighlight.astro`, `Philosophy.astro`,
   `LinkCategoryBlock.astro` — content teasers/blocks, no scripts
 
 ## Environment variables

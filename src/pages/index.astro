@@ -12,11 +12,12 @@ import ContForm from '../components/ContForm.astro';
 import Philosophy from '../components/Philosophy.astro';
 import BlogHighlight from '../components/BlogHighlight.astro';
 import RigsHighlight from '../components/RigsHighlight.astro';
+import ProjectsHighlight from '../components/ProjectsHighlight.astro';
 ---
 <Layout title="propstgonz">
-  <Header activePage="/" />
+  <Header activePage="/" home />
 
-  <div class="max-w-[880px] mx-auto px-5 pb-16 grid grid-cols-1 sm:grid-cols-[240px_1fr] gap-8">
+  <div class="max-w-page mx-auto px-5 pb-16 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8">
 
     <aside class="flex flex-col gap-6">
       <AboutMe />
@@ -25,13 +26,14 @@ import RigsHighlight from '../components/RigsHighlight.astro';
       <IP />
     </aside>
 
-    <main class="flex flex-col gap-6 min-w-0">
+    <main id="main" class="flex flex-col gap-6 min-w-0">
+      <ProjectsHighlight />
       <BlogHighlight />
-      <Philosophy />
+      <RigsHighlight />
       <ContForm />
+      <Philosophy />
       <Logs />
       <Tools />
-      <RigsHighlight />
     </main>
   </div>
 

@@ -1,6 +1,8 @@
 ---
+import { typewriterMessages } from '../data/aboutme';
 ---
-<p class="font-mono text-[13px] text-cyan leading-[18px] h-[36px] overflow-hidden" id="tw-text"><span class="animate-blink" aria-hidden="true">|</span></p>
+<p class="font-mono text-sm text-cyan leading-[18px] min-h-[72px] sm:min-h-[54px] md:min-h-[36px]" id="tw-text" aria-hidden="true"><span class="animate-blink">|</span></p>
+<p class="sr-only">{typewriterMessages[0]}</p>
 
 <script>
   import { initTypewriter } from '../assets/scripts/typewriter';

@@ -4,21 +4,23 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout title="404 — propstgonz">
+<Layout title="404 — propstgonz" noindex>
   <Header />
 
-  <main class="max-w-[880px] mx-auto px-5 py-16 font-mono">
+  <main id="main" class="max-w-page mx-auto px-5 py-16 font-mono">
     <div class="flex flex-col items-center justify-center text-center gap-3">
       <img
-        src="/assets/img/technical-difficulties-tenna.gif"
+        src="/assets/img/technical-difficulties-tenna.webp"
         alt="Technical difficulties"
+        width="280"
+        height="205"
         class="max-w-[280px] rounded-lg mb-2"
         loading="eager"
       />
       <h1 class="text-6xl font-bold text-amber font-mono leading-none">404</h1>
       <p class="text-base text-text font-medium">Page not found.</p>
-      <p class="text-xs text-text2">Whatever you were looking for, I probably didn't make it yet.</p>
-      <a href="/" class="text-xs text-cyan no-underline mt-2 hover:underline">← Go home</a>
+      <p class="text-sm text-text2">Whatever you were looking for, I probably didn't make it yet.</p>
+      <a href="/" class="text-sm text-cyan no-underline mt-2 hover:underline">← Go home</a>
     </div>
   </main>
 

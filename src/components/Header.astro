@@ -6,21 +6,25 @@ import Nav from './Nav.astro';
 
 interface Props {
   activePage?: string;
+  home?: boolean;
 }
 
-const { activePage = '' } = Astro.props;
+const { activePage = '', home = false } = Astro.props;
+const NameTag = home ? 'h1' : 'p';
 ---
-<header class="max-w-[880px] mx-auto px-5 pt-8 pb-6">
-  <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
-    <div transition:persist transition:name="avatar">
-      <Avatar name={aboutme.name} />
-    </div>
+<header class="max-w-page mx-auto px-5 pt-8 pb-6">
+  <div class="card p-4 sm:p-5 flex flex-col gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+      <div transition:persist transition:name="avatar">
+        <Avatar name={aboutme.name} />
+      </div>
 
-    <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
-      <h1 class="text-lg font-bold text-amber font-mono leading-none">{aboutme.name}</h1>
-      <p class="text-xs text-text3 font-mono">{aboutme.tagline}</p>
-      <div transition:persist transition:name="typewriter">
-        <Typewriter />
+      <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+        <NameTag class="text-lg font-bold text-amber font-mono leading-none">{aboutme.name}</NameTag>
+        <p class="text-xs text-text3 font-mono">{aboutme.tagline}</p>
+        <div transition:persist transition:name="typewriter">
+          <Typewriter />
+        </div>
       </div>
     </div>
 

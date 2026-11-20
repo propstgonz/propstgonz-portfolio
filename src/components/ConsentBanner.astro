@@ -6,9 +6,9 @@
   role="region"
   aria-label="Data collection consent"
 >
-  <div class="max-w-[880px] mx-auto px-5 pb-5">
-    <div class="card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
-      <p class="flex-1 min-w-0 font-mono text-[13px] text-text2 leading-relaxed">
+  <div class="max-w-page mx-auto px-5 pb-5">
+    <div class="card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-pop">
+      <p class="flex-1 min-w-0 font-mono text-sm text-text2 leading-relaxed">
         <span class="text-amber font-semibold">$ ./privacy.sh</span>
         — this site would like to log your IP, the pages you open, the
         site you arrived from, and your browser and OS, just to keep
@@ -17,19 +17,18 @@
         server. Decline and none of that happens — you won't be asked
         again.
       </p>
-      <div class="flex gap-2 shrink-0">
+      <div class="flex gap-2 shrink-0 max-sm:[&>button]:flex-1">
         <button
           id="consent-decline"
           type="button"
-          class="font-mono text-[13px] px-4 py-2 rounded-lg border border-b1 text-text2 hover:text-text hover:bg-b1/70 transition-colors cursor-pointer"
+          class="btn-secondary"
         >
           Decline
         </button>
         <button
           id="consent-accept"
           type="button"
-          class="font-mono text-[13px] font-bold px-4 py-2 rounded-lg text-bg transition-all hover:-translate-y-0.5 cursor-pointer"
-          style="background: linear-gradient(135deg, var(--color-amber), var(--color-amber-d));"
+          class="btn-primary"
         >
           Accept
         </button>
@@ -39,8 +38,8 @@
 </div>
 
 <script>
-  const CONSENT_KEY = 'propstgonz-consent';
-  const CONSENT_EVENT = 'propstgonz:consent-changed';
+  import { CONSENT_KEY, CONSENT_EVENT } from '../lib/consent';
+
   const SESSION_KEY = 'propstgonz-session';
 
   function sessionId() {

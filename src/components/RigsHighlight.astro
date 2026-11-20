@@ -1,17 +1,15 @@
 ---
 import { computers } from '../data/computers';
+import SectionHeader from './SectionHeader.astro';
 
 const pc = computers[0];
 ---
 <a href="/rigs" class="btn-cta group">
   <div class="min-w-0">
-    <div class="sec-hd mb-2">
-      <span class="sec-hd-bar"></span>
-      <span class="sec-hd-title">rigs</span>
-    </div>
-    <p class="text-[13px] text-text2 font-mono truncate">
-      {pc.name} · {pc.os} — full setup, specs & self-hosted stack →
+    <SectionHeader title="rigs" rule={false} class="mb-2" />
+    <p class="text-sm text-text2 font-mono truncate">
+      {pc.name} · {pc.os} — full setup, specs & self-hosted stack
     </p>
   </div>
-  <span class="text-text3 text-lg group-hover:text-amber group-hover:translate-x-1 transition-all shrink-0" aria-hidden="true">→</span>
+  <span class="btn-cta-arrow" aria-hidden="true">→</span>
 </a>
