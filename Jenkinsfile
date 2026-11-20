@@ -27,6 +27,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = 'propstgonz-web'
+    ENV_SOURCE = '/var/jenkins_home/envs/propstgonz-portfolio/.env'
   }
 
   stages {
@@ -46,7 +47,8 @@ pipeline {
       steps {
         sh '''
           docker info > /dev/null || (echo "Docker daemon unreachable from this agent." && exit 1)
-          test -f .env || (echo ".env is missing in the workspace — docker-compose.yml requires it (env_file: .env)." && exit 1)
+          if [ -f "$ENV_SOURCE" ]; then cp "$ENV_SOURCE" .env; fi
+          test -f .env || (echo ".env not found: put it at $ENV_SOURCE on the Jenkins host (outside the workspace, so it survives wipes)." && exit 1)
           docker compose config -q
 
           mkdir -p /media/raid/database/portfolio-counter
