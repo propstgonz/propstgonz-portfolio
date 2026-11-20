@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 RUN corepack enable
@@ -13,7 +13,7 @@ ENV ASTRO_TELEMETRY_DISABLED=1
 
 RUN pnpm build
 
-FROM node:lts-alpine
+FROM node:24-alpine
 WORKDIR /app
 
 RUN corepack enable
