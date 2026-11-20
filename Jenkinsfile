@@ -47,7 +47,7 @@ pipeline {
       steps {
         sh '''
           docker info > /dev/null || (echo "Docker daemon unreachable from this agent." && exit 1)
-          if [ -f "$ENV_SOURCE" ]; then cp "$ENV_SOURCE" .env; fi
+          if [ -f "$ENV_SOURCE" ]; then cp "$ENV_SOURCE" .env; else echo "WARN: $ENV_SOURCE not found, falling back to the workspace .env if there is one."; fi
           test -f .env || (echo ".env not found: put it at $ENV_SOURCE on the Jenkins host (outside the workspace, so it survives wipes)." && exit 1)
           docker compose config -q
 

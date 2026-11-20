@@ -14,12 +14,6 @@ export const socials: Social[] = [
     external: true,
   },
   {
-    label: 'Steam',
-    href: 'https://steamcommunity.com/id/propstgonz/',
-    icon: '/icons/svg/steam.svg',
-    external: true,
-  },
-  {
     label: 'Instagram',
     href: 'https://www.instagram.com/propstgonz/',
     icon: '/icons/svg/instagram.svg',

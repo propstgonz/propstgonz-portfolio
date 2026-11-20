@@ -62,6 +62,7 @@
 @layer base {
   :root {
     color-scheme: dark;
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -140,7 +141,7 @@
   }
 
   .btn-nav {
-    @apply inline-flex items-center justify-center min-h-9 px-3 py-1.5 rounded-lg font-mono text-sm transition-colors;
+    @apply inline-flex items-center justify-center min-h-10 px-3 py-1.5 rounded-lg font-mono text-sm transition-colors;
   }
   .btn-nav-active {
     @apply bg-amber/10 text-amber ring-1 ring-inset ring-amber/40;
@@ -159,7 +160,7 @@
   }
 
   .btn-icon {
-    @apply w-9 h-9 rounded-lg border border-b1 text-text2 flex items-center justify-center
+    @apply w-10 h-10 rounded-lg border border-b1 text-text2 flex items-center justify-center
       hover:text-amber hover:border-amber-d hover:bg-amber/10 transition-colors;
   }
 

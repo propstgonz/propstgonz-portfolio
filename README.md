@@ -11,7 +11,7 @@ external content source.
 |---|---|
 | `/` | Home — about me, socials, click counter, IP widget, projects/blog/rigs teasers, contact form, philosophy, changelog, stack |
 | `/projects` | Things I built, one card per project from `src/data/projects.ts` (add a project = add an entry there) |
-| `/rigs` | Rigs (my machines, original specs verbatim from the pre-rewrite site), full stack, FAQ teaser |
+| `/rigs` | Rigs (my machines, original specs verbatim from the pre-rewrite site) |
 | `/faq` | Frequently asked questions |
 | `/links` | Sites I like, grouped by category |
 | `/blog` | Post list, pulled from [propstgonz-portfolio-backend](https://github.com/propstgonz/propstgonz-portfolio-backend) |
@@ -23,7 +23,7 @@ external content source.
 - **Tailwind CSS 4** via `@tailwindcss/vite` — theme tokens and reusable
   component classes live in `src/styles/global.css` (`@theme` / `@layer components`)
 - **nodemailer** for the contact form
-- **sharp**, via `astro:assets`, to serve the stack logos as optimized WebP
+- **sharp**, via `astro:assets`, to serve the PNG stack logos as optimized WebP (SVG logos are served as-is)
 - **pnpm** as the package manager
 - No UI framework. Interactivity is plain, component-scoped `<script>`
   blocks — see "Component structure" below.
